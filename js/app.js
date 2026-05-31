@@ -25,6 +25,7 @@ function switchTab(tab){
     b.classList.toggle('active',b.dataset.tab===tab);
   });
   if(tab==='mixer')updateMix();
+  if(tab==='wheel')initWheel();
 }
 
 function showToast(msg,duration){
