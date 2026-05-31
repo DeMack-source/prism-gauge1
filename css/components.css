@@ -106,3 +106,26 @@ input[type="color"]{width:60px;height:60px;border:none;border-radius:var(--radiu
   transform: translate(-50%, -50%) !important;
   z-index: 999 !important;
 }
+
+.temp-bar {
+  position: relative !important;
+  height: 18px !important;
+  background: linear-gradient(90deg,#3b82f6,#e5e7eb,#ef4444) !important;
+  overflow: visible !important;
+}
+
+#temp-indicator {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 76.9% !important;
+  width: 28px !important;
+  height: 28px !important;
+  background: yellow !important;
+  border: 5px solid black !important;
+  border-radius: 999px !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 99999 !important;
+}
