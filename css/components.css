@@ -76,32 +76,12 @@ input[type="color"]{width:60px;height:60px;border:none;border-radius:var(--radiu
 
 
 
+
+
+
+
+
 .temp-bar-wrap{margin-top:8px;}
-.temp-bar{
-  height:12px;
-  border-radius:6px;
-  background:linear-gradient(to right,#4fc3f7,#e0e0e0,#ff7043);
-  position:relative;
-  margin:8px 0;
-  width:100%;
-}
-.temp-indicator{
-  position:absolute;
-  top:50%;
-  width:18px;
-  height:18px;
-  border-radius:50%;
-  background:white;
-  border:3px solid #08080f;
-  box-shadow:0 0 8px rgba(0,0,0,0.6);
-  transform:translate(-50%,-50%);
-  transition:left 0.4s ease;
-  pointer-events:none;
-}
-.temp-labels{
-  display:flex;
-  justify-content:space-between;
-  font-family:'Space Mono',monospace;
-  font-size:0.58rem;
-  color:#6a6a8a;
-}
+.temp-bar{position:relative;height:12px;border-radius:999px;overflow:visible;background:linear-gradient(90deg,#3b82f6 0%,#e5e7eb 50%,#ef4444 100%);margin:8px 0;}
+#temp-indicator{position:absolute;top:50%;left:50%;width:16px;height:16px;border-radius:999px;background:white;border:3px solid #08080f;box-shadow:0 0 8px rgba(0,0,0,0.6);pointer-events:none;transform:translate(-50%,-50%);transition:left 0.4s ease;z-index:2;}
+.temp-labels{display:flex;justify-content:space-between;font-family:'Space Mono',monospace;font-size:0.58rem;color:#6a6a8a;}

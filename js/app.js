@@ -86,25 +86,11 @@ function renderBaseColor(){
   var temp=colorTemp(r,g,b);
   var pct=Math.max(2,Math.min(98,temp*100));
   var indicator=document.getElementById('temp-indicator');
-  var bar=document.getElementById('temp-indicator').parentElement;
-  var barWidth=bar.offsetWidth;
-  indicator.style.position='absolute';
-  indicator.style.top='50%';
-  indicator.style.left=pct+'%';
-  indicator.style.transform='translate(-50%,-50%)';
-  indicator.style.width='16px';
-  indicator.style.height='16px';
-  indicator.style.borderRadius='50%';
-  indicator.style.background='white';
-  indicator.style.border='3px solid #08080f';
-  indicator.style.boxShadow='0 0 8px rgba(0,0,0,0.6)';
-  indicator.style.pointerEvents='none';
-  indicator.style.transition='left 0.4s ease';
+  if(indicator){indicator.style.left=pct+'%';}
   renderSchemeGrid();
   renderActivePalette();
   renderTheory();
 }
-
 function renderSchemeGrid(){
   var grid=document.getElementById('scheme-grid');
   grid.innerHTML='';
