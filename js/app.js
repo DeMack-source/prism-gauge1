@@ -1,5 +1,3 @@
-'use strict';
-
 const STATE={activeTab:'color',activeScheme:'complementary',activeGrid:'perspective',pickerTarget:'base',isCameraOn:false,isGyroOn:false,isFrozen:false,baseColor:{r:201,g:64,b:64},mixA:{r:201,g:64,b:64},mixB:{r:64,g:128,b:201},wheelColor:null,savedPalettes:JSON.parse(localStorage.getItem('pg_palettes')||'[]')};
 
 const $=id=>document.getElementById(id);

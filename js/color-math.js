@@ -1,5 +1,3 @@
-'use strict';
-
 // ── sRGB <-> LINEAR LIGHT ─────────────────────
 function toLinear(c){
   c=c/255;
