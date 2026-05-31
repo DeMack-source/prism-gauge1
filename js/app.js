@@ -1,168 +1,217 @@
-const STATE={activeTab:'color',activeScheme:'complementary',activeGrid:'perspective',pickerTarget:'base',isCameraOn:false,isGyroOn:false,isFrozen:false,baseColor:{r:201,g:64,b:64},mixA:{r:201,g:64,b:64},mixB:{r:64,g:128,b:201},wheelColor:null,savedPalettes:JSON.parse(localStorage.getItem('pg_palettes')||'[]')};
+const STATE={
+  activeTab:'color',
+  activeScheme:'complementary',
+  activeGrid:'perspective',
+  pickerTarget:'base',
+  isCameraOn:false,
+  isGyroOn:false,
+  isFrozen:false,
+  baseColor:{r:201,g:64,b:64},
+  mixA:{r:201,g:64,b:64},
+  mixB:{r:64,g:128,b:201},
+  wheelColor:null,
+  savedPalettes:[]
+};
 
 const $=id=>document.getElementById(id);
 const $$=sel=>document.querySelectorAll(sel);
 
 function switchTab(tab){
   STATE.activeTab=tab;
-  $$('.tab-panel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+tab));
-  $$('.tab-btn,.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  document.querySelectorAll('.tab-panel').forEach(function(p){
+    p.classList.toggle('active',p.id==='tab-'+tab);
+  });
+  document.querySelectorAll('.tab-btn,.nav-btn').forEach(function(b){
+    b.classList.toggle('active',b.dataset.tab===tab);
+  });
   if(tab==='mixer')updateMix();
 }
 
-function showToast(msg,duration=1800){
-  const t=$('toast');t.textContent=msg;t.classList.add('show');
-  clearTimeout(t._timer);t._timer=setTimeout(()=>t.classList.remove('show'),duration);
+function showToast(msg,duration){
+  if(!duration)duration=1800;
+  var t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer=setTimeout(function(){t.classList.remove('show');},duration);
 }
 
 function copyToClipboard(text){
-  navigator.clipboard?.writeText(text).catch(()=>{});
+  if(navigator.clipboard)navigator.clipboard.writeText(text).catch(function(){});
   showToast('Copied '+text);
 }
 
 function openPicker(target){
   STATE.pickerTarget=target;
-  const labels={base:'Set Base Color',mixA:'Set Color A',mixB:'Set Color B'};
-  $('picker-title').textContent=labels[target]||'Pick a Color';
-  const cur=target==='base'?STATE.baseColor:target==='mixA'?STATE.mixA:STATE.mixB;
-  $('native-picker').value=rgb2hex(cur.r,cur.g,cur.b);
-  $('picker-hex-display').textContent=rgb2hex(cur.r,cur.g,cur.b);
-  $('color-picker-popup').classList.add('open');
+  var labels={base:'Set Base Color',mixA:'Set Color A',mixB:'Set Color B'};
+  document.getElementById('picker-title').textContent=labels[target]||'Pick a Color';
+  var cur=target==='base'?STATE.baseColor:target==='mixA'?STATE.mixA:STATE.mixB;
+  document.getElementById('native-picker').value=rgb2hex(cur.r,cur.g,cur.b);
+  document.getElementById('picker-hex-display').textContent=rgb2hex(cur.r,cur.g,cur.b);
+  document.getElementById('color-picker-popup').classList.add('open');
 }
 
-function closePicker(){$('color-picker-popup').classList.remove('open');}
+function closePicker(){
+  document.getElementById('color-picker-popup').classList.remove('open');
+}
 
 function onPickerChange(hex){
-  $('picker-hex-display').textContent=hex.toUpperCase();
-  const rgb=hex2rgb(hex);
+  document.getElementById('picker-hex-display').textContent=hex.toUpperCase();
+  var rgb=hex2rgb(hex);
   if(STATE.pickerTarget==='base'){STATE.baseColor=rgb;renderBaseColor();}
-  else if(STATE.pickerTarget==='mixA'){STATE.mixA=rgb;$('mix-a-swatch').style.background=hex;updateMix();}
-  else if(STATE.pickerTarget==='mixB'){STATE.mixB=rgb;$('mix-b-swatch').style.background=hex;updateMix();}
+  else if(STATE.pickerTarget==='mixA'){STATE.mixA=rgb;document.getElementById('mix-a-swatch').style.background=hex;updateMix();}
+  else if(STATE.pickerTarget==='mixB'){STATE.mixB=rgb;document.getElementById('mix-b-swatch').style.background=hex;updateMix();}
 }
 
 function setStatus(mode){
-  const dot=$('status-dot');const ind=$('mode-indicator');
-  const modes={offline:{text:'STUDIO MODE - OFFLINE',cls:[]},live:{text:'AR LENS + GYRO ACTIVE',cls:['live']},frozen:{text:'GRID LOCKED - SKETCH MODE',cls:['frozen']}};
-  const m=modes[mode]||modes.offline;
-  ind.textContent=m.text;dot.className='status-dot '+m.cls.join(' ');
+  var dot=document.getElementById('status-dot');
+  var ind=document.getElementById('mode-indicator');
+  var modes={
+    offline:{text:'STUDIO MODE - OFFLINE',cls:[]},
+    live:{text:'AR LENS + GYRO ACTIVE',cls:['live']},
+    frozen:{text:'GRID LOCKED - SKETCH MODE',cls:['frozen']}
+  };
+  var m=modes[mode]||modes.offline;
+  ind.textContent=m.text;
+  dot.className='status-dot '+m.cls.join(' ');
 }
 
 function renderBaseColor(){
-  const{r,g,b}=STATE.baseColor;
-  const hex=rgb2hex(r,g,b);
-  $('base-swatch').style.background=hex;
-  $('base-hex').textContent=hex;
-  $('base-rgb').textContent='RGB '+r+', '+g+', '+b;
-  const temp=colorTemp(r,g,b);
-  $('temp-indicator').style.left=(temp*100)+'%';
+  var r=STATE.baseColor.r,g=STATE.baseColor.g,b=STATE.baseColor.b;
+  var hex=rgb2hex(r,g,b);
+  document.getElementById('base-swatch').style.background=hex;
+  document.getElementById('base-hex').textContent=hex;
+  document.getElementById('base-rgb').textContent='RGB '+r+', '+g+', '+b;
+  var temp=colorTemp(r,g,b);
+  document.getElementById('temp-indicator').style.left=(temp*100)+'%';
   renderSchemeGrid();
   renderActivePalette();
   renderTheory();
 }
 
 function renderSchemeGrid(){
-  const grid=$('scheme-grid');
+  var grid=document.getElementById('scheme-grid');
   grid.innerHTML='';
-  Object.entries(SCHEMES).forEach(([key,scheme])=>{
-    const colors=getHarmonyColors(STATE.baseColor,key);
-    const div=document.createElement('div');
+  Object.keys(SCHEMES).forEach(function(key){
+    var scheme=SCHEMES[key];
+    var colors=getHarmonyColors(STATE.baseColor,key);
+    var div=document.createElement('div');
     div.className='scheme-card'+(key===STATE.activeScheme?' active':'');
-    div.onclick=()=>{STATE.activeScheme=key;renderSchemeGrid();renderActivePalette();renderTheory();};
-    div.innerHTML='<div class="scheme-name">'+scheme.name+'</div><div class="scheme-swatches">'+colors.map(c=>'<div class="swatch" style="background:'+rgb2hex(c.r,c.g,c.b)+'"></div>').join('')+'</div>';
+    div.onclick=function(){STATE.activeScheme=key;renderSchemeGrid();renderActivePalette();renderTheory();};
+    var swatches=colors.map(function(c){return '<div class="swatch" style="background:'+rgb2hex(c.r,c.g,c.b)+'"></div>';}).join('');
+    div.innerHTML='<div class="scheme-name">'+scheme.name+'</div><div class="scheme-swatches">'+swatches+'</div>';
     grid.appendChild(div);
   });
 }
 
 function renderActivePalette(){
-  const strip=$('palette-strip');
-  const colors=getHarmonyColors(STATE.baseColor,STATE.activeScheme);
-  strip.innerHTML=colors.map(c=>{
-    const hex=rgb2hex(c.r,c.g,c.b);
-    return '<div class="palette-chip" style="background:'+hex+'" onclick="copyToClipboard(''+hex+'')"></div>';
+  var strip=document.getElementById('palette-strip');
+  var colors=getHarmonyColors(STATE.baseColor,STATE.activeScheme);
+  strip.innerHTML=colors.map(function(c){
+    var hex=rgb2hex(c.r,c.g,c.b);
+    return '<div class="palette-chip" style="background:'+hex+'" onclick="copyToClipboard('+JSON.stringify(hex)+')"></div>';
   }).join('');
 }
 
 function renderTheory(){
-  const scheme=SCHEMES[STATE.activeScheme];
-  $('theory-text').innerHTML=scheme.desc;
+  var scheme=SCHEMES[STATE.activeScheme];
+  document.getElementById('theory-text').innerHTML=scheme.desc;
 }
 
 function renderValueScale(rgb){
-  const scale=$('value-scale');
+  var scale=document.getElementById('value-scale');
   if(!scale)return;
-  const steps=getValueScale(rgb,11);
-  scale.innerHTML=steps.map(c=>{
-    const hex=rgb2hex(c.r,c.g,c.b);
-    return '<div style="flex:1;background:'+hex+';cursor:pointer" onclick="copyToClipboard(''+hex+'')" title="'+hex+'"></div>';
+  var steps=getValueScale(rgb,11);
+  scale.innerHTML=steps.map(function(c){
+    var hex=rgb2hex(c.r,c.g,c.b);
+    return '<div style="flex:1;background:'+hex+';cursor:pointer" onclick="copyToClipboard('+JSON.stringify(hex)+')" title="'+hex+'"></div>';
   }).join('');
 }
 
 function updateMix(){
-  const t=parseInt($('mix-ratio').value)/100;
-  const mix=mixPigments(STATE.mixA,STATE.mixB,t);
-  const hex=rgb2hex(mix.r,mix.g,mix.b);
-  $('mix-result-swatch').style.background=hex;
-  $('mix-result-hex').textContent=hex;
-  $('mix-result-rgb').textContent='RGB '+mix.r+', '+mix.g+', '+mix.b;
-  $('ratio-a-label').textContent='A '+(100-Math.round(t*100))+'%';
-  $('ratio-b-label').textContent='B '+Math.round(t*100)+'%';
+  var t=parseInt(document.getElementById('mix-ratio').value)/100;
+  var mix=mixPigments(STATE.mixA,STATE.mixB,t);
+  var hex=rgb2hex(mix.r,mix.g,mix.b);
+  document.getElementById('mix-result-swatch').style.background=hex;
+  document.getElementById('mix-result-hex').textContent=hex;
+  document.getElementById('mix-result-rgb').textContent='RGB '+mix.r+', '+mix.g+', '+mix.b;
+  document.getElementById('ratio-a-label').textContent='A '+(100-Math.round(t*100))+'%';
+  document.getElementById('ratio-b-label').textContent='B '+Math.round(t*100)+'%';
   renderValueScale(mix);
   STATE._mixResult=mix;
 }
 
 function savePalette(){
-  const colors=getHarmonyColors(STATE.baseColor,STATE.activeScheme);
-  const hexes=colors.map(c=>rgb2hex(c.r,c.g,c.b));
+  var colors=getHarmonyColors(STATE.baseColor,STATE.activeScheme);
+  var hexes=colors.map(function(c){return rgb2hex(c.r,c.g,c.b);});
   STATE.savedPalettes.unshift({scheme:SCHEMES[STATE.activeScheme].name,colors:hexes,ts:Date.now()});
   if(STATE.savedPalettes.length>10)STATE.savedPalettes.pop();
-  localStorage.setItem('pg_palettes',JSON.stringify(STATE.savedPalettes));
+  try{localStorage.setItem('pg_palettes',JSON.stringify(STATE.savedPalettes));}catch(e){}
   renderSaved();
   showToast('Palette saved!');
 }
 
 function renderSaved(){
-  const list=$('saved-list');
-  const card=$('saved-palettes-card');
+  var list=document.getElementById('saved-list');
+  var card=document.getElementById('saved-palettes-card');
   if(!STATE.savedPalettes.length){card.style.display='none';return;}
   card.style.display='block';
-  list.innerHTML=STATE.savedPalettes.map((p,i)=>
-    '<div style="display:flex;gap:6px;align-items:center">'+
-    '<div style="flex:1"><div style="font-family:var(--font-mono);font-size:0.58rem;color:var(--muted);margin-bottom:4px">'+p.scheme+'</div>'+
-    '<div style="display:flex;gap:3px;height:24px">'+p.colors.map(h=>'<div style="flex:1;border-radius:4px;background:'+h+';cursor:pointer" onclick="copyToClipboard(''+h+'')"></div>').join('')+'</div></div>'+
-    '<button onclick="deletePalette('+i+')" style="font-size:0.8rem;color:var(--muted);padding:4px">x</button></div>'
-  ).join('');
+  list.innerHTML=STATE.savedPalettes.map(function(p,i){
+    var chips=p.colors.map(function(h){return '<div style="flex:1;border-radius:4px;background:'+h+';cursor:pointer" onclick="copyToClipboard('+JSON.stringify(h)+')"></div>';}).join('');
+    return '<div style="display:flex;gap:6px;align-items:center"><div style="flex:1"><div style="font-family:var(--font-mono);font-size:0.58rem;color:var(--muted);margin-bottom:4px">'+p.scheme+'</div><div style="display:flex;gap:3px;height:24px">'+chips+'</div></div><button onclick="deletePalette('+i+')" style="font-size:0.8rem;color:var(--muted);padding:4px">x</button></div>';
+  }).join('');
 }
 
 function deletePalette(i){
   STATE.savedPalettes.splice(i,1);
-  localStorage.setItem('pg_palettes',JSON.stringify(STATE.savedPalettes));
+  try{localStorage.setItem('pg_palettes',JSON.stringify(STATE.savedPalettes));}catch(e){}
   renderSaved();
 }
 
 function wireEvents(){
-  $$('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>switchTab(btn.dataset.tab)));
-  $$('.nav-btn').forEach(btn=>btn.addEventListener('click',()=>switchTab(btn.dataset.tab)));
-  $('ar-btn').addEventListener('click',()=>showToast('AR loads in Phase 6'));
-  $('save-btn').addEventListener('click',savePalette);
-  $('edit-base-btn').addEventListener('click',()=>openPicker('base'));
-  $('base-swatch').addEventListener('click',()=>openPicker('base'));
-  $('picker-close-btn').addEventListener('click',closePicker);
-  $('native-picker').addEventListener('input',e=>onPickerChange(e.target.value));
-  $('mix-a-swatch').addEventListener('click',()=>openPicker('mixA'));
-  $('mix-b-swatch').addEventListener('click',()=>openPicker('mixB'));
-  $('set-base-wheel-btn').addEventListener('click',()=>{if(STATE.wheelColor){STATE.baseColor={...STATE.wheelColor};renderBaseColor();showToast('Base color updated!');}});
-  $('set-base-mix-btn').addEventListener('click',()=>{if(STATE._mixResult){STATE.baseColor={...STATE._mixResult};renderBaseColor();showToast('Base set from mix!');}});
-  $('ar-toggle-btn').addEventListener('click',()=>showToast('AR loads in Phase 6'));
-  $('freeze-btn').addEventListener('click',()=>showToast('AR loads in Phase 6'));
-  $('mix-ratio').addEventListener('input',updateMix);
-  $$('.grid-tool-btn').forEach(btn=>btn.addEventListener('click',()=>{$$('.grid-tool-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');STATE.activeGrid=btn.dataset.grid;showToast(btn.dataset.grid+' grid selected');}));
-  $('grid-opacity').addEventListener('input',e=>{$('opac-val').textContent=e.target.value+'%';});
-  $('grid-scale').addEventListener('input',e=>{$('scale-val').textContent=(e.target.value/10).toFixed(1)+'x';});
+  document.querySelectorAll('.tab-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){switchTab(btn.dataset.tab);});
+  });
+  document.querySelectorAll('.nav-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){switchTab(btn.dataset.tab);});
+  });
+  document.getElementById('ar-btn').addEventListener('click',function(){showToast('AR loads in Phase 6');});
+  document.getElementById('save-btn').addEventListener('click',savePalette);
+  document.getElementById('edit-base-btn').addEventListener('click',function(){openPicker('base');});
+  document.getElementById('base-swatch').addEventListener('click',function(){openPicker('base');});
+  document.getElementById('picker-close-btn').addEventListener('click',closePicker);
+  document.getElementById('native-picker').addEventListener('input',function(e){onPickerChange(e.target.value);});
+  document.getElementById('mix-a-swatch').addEventListener('click',function(){openPicker('mixA');});
+  document.getElementById('mix-b-swatch').addEventListener('click',function(){openPicker('mixB');});
+  document.getElementById('set-base-wheel-btn').addEventListener('click',function(){
+    if(STATE.wheelColor){STATE.baseColor={r:STATE.wheelColor.r,g:STATE.wheelColor.g,b:STATE.wheelColor.b};renderBaseColor();showToast('Base color updated!');}
+  });
+  document.getElementById('set-base-mix-btn').addEventListener('click',function(){
+    if(STATE._mixResult){STATE.baseColor={r:STATE._mixResult.r,g:STATE._mixResult.g,b:STATE._mixResult.b};renderBaseColor();showToast('Base set from mix!');}
+  });
+  document.getElementById('ar-toggle-btn').addEventListener('click',function(){showToast('AR loads in Phase 6');});
+  document.getElementById('freeze-btn').addEventListener('click',function(){showToast('AR loads in Phase 6');});
+  document.getElementById('mix-ratio').addEventListener('input',updateMix);
+  document.querySelectorAll('.grid-tool-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      document.querySelectorAll('.grid-tool-btn').forEach(function(b){b.classList.remove('active');});
+      btn.classList.add('active');
+      STATE.activeGrid=btn.dataset.grid;
+      showToast(btn.dataset.grid+' grid selected');
+    });
+  });
+  document.getElementById('grid-opacity').addEventListener('input',function(e){
+    document.getElementById('opac-val').textContent=e.target.value+'%';
+  });
+  document.getElementById('grid-scale').addEventListener('input',function(e){
+    document.getElementById('scale-val').textContent=(e.target.value/10).toFixed(1)+'x';
+  });
 }
 
-document.addEventListener('DOMContentLoaded',()=>{
-  $('mix-a-swatch').style.background=rgb2hex(STATE.mixA.r,STATE.mixA.g,STATE.mixA.b);
-  $('mix-b-swatch').style.background=rgb2hex(STATE.mixB.r,STATE.mixB.g,STATE.mixB.b);
+document.addEventListener('DOMContentLoaded',function(){
+  try{STATE.savedPalettes=JSON.parse(localStorage.getItem('pg_palettes')||'[]');}catch(e){STATE.savedPalettes=[];}
+  document.getElementById('mix-a-swatch').style.background=rgb2hex(STATE.mixA.r,STATE.mixA.g,STATE.mixA.b);
+  document.getElementById('mix-b-swatch').style.background=rgb2hex(STATE.mixB.r,STATE.mixB.g,STATE.mixB.b);
   wireEvents();
   renderBaseColor();
   renderSaved();
