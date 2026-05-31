@@ -80,17 +80,34 @@ function setStatus(mode){
 function renderBaseColor(){
   var r=STATE.baseColor.r,g=STATE.baseColor.g,b=STATE.baseColor.b;
   var hex=rgb2hex(r,g,b);
-  document.getElementById('base-swatch').style.background=hex;
-  document.getElementById('base-hex').textContent=hex;
-  document.getElementById('base-rgb').textContent='RGB '+r+', '+g+', '+b;
+
+  var swatch=document.getElementById('base-swatch');
+  var hexEl=document.getElementById('base-hex');
+  var rgbEl=document.getElementById('base-rgb');
+
+  if(swatch){swatch.style.background=hex;}
+  if(hexEl){hexEl.textContent=hex;}
+  if(rgbEl){rgbEl.textContent='RGB '+r+', '+g+', '+b;}
+
   var temp=colorTemp(r,g,b);
   var pct=Math.max(2,Math.min(98,temp*100));
   var indicator=document.getElementById('temp-indicator');
-  if(indicator){indicator.style.left=pct+'%';}
+
+  if(indicator){
+    indicator.style.left=pct+'%';
+    indicator.style.display='block';
+  }
+
+  var debug=document.getElementById('temp-debug');
+  if(debug){
+    debug.textContent='TEMP DEBUG: rgb='+r+','+g+','+b+' temp='+temp.toFixed(3)+' pct='+pct.toFixed(1)+' indicator='+(indicator?'yes':'no');
+  }
+
   renderSchemeGrid();
   renderActivePalette();
   renderTheory();
 }
+
 function renderSchemeGrid(){
   var grid=document.getElementById('scheme-grid');
   grid.innerHTML='';
