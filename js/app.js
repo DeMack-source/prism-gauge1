@@ -84,7 +84,8 @@ function renderBaseColor(){
   document.getElementById('base-hex').textContent=hex;
   document.getElementById('base-rgb').textContent='RGB '+r+', '+g+', '+b;
   var temp=colorTemp(r,g,b);
-  document.getElementById('temp-indicator').style.left=(temp*100)+'%';
+  var pct=Math.max(2,Math.min(98,temp*100));
+  document.getElementById('temp-indicator').style.left=pct+'%';
   renderSchemeGrid();
   renderActivePalette();
   renderTheory();
