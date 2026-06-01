@@ -21,6 +21,12 @@ const STATE = {
 const $ = id => document.getElementById(id);
 const $$ = sel => document.querySelectorAll(sel);
 
+// ── WHEEL INITIALIZED FLAG ────────────────────────────────────
+function isWheelReady() {
+  var canvas = document.getElementById('color-wheel-canvas');
+  return canvas && canvas._wheelListenersAdded;
+}
+
 // ── TAB SWITCHING ─────────────────────────────────────────────
 function switchTab(tab) {
   STATE.activeTab = tab;
@@ -97,8 +103,8 @@ function setStatus(mode) {
   var ind = document.getElementById('mode-indicator');
   var modes = {
     offline: { text: 'STUDIO MODE - OFFLINE', cls: [] },
-    live: { text: 'AR LENS + GYRO ACTIVE', cls: ['live'] },
-    frozen: { text: 'GRID LOCKED - SKETCH MODE', cls: ['frozen'] }
+    live:    { text: 'AR LENS + GYRO ACTIVE', cls: ['live'] },
+    frozen:  { text: 'GRID LOCKED - SKETCH MODE', cls: ['frozen'] }
   };
   var m = modes[mode] || modes.offline;
   ind.textContent = m.text;
@@ -106,37 +112,40 @@ function setStatus(mode) {
 }
 
 // ── MENTOR TEMPERATURE HELPER ─────────────────────────────────
-// Fires the right temperature tip based on current base color
 function fireTempTip(r, g, b) {
   var temp = colorTemp(r, g, b);
   if (temp > 0.62) {
-    MENTOR.fire('color_warm_selected', { r, g, b, temp });
+    MENTOR.fire('color_warm_selected', { r: r, g: g, b: b, temp: temp });
   } else if (temp < 0.38) {
-    MENTOR.fire('color_cool_selected', { r, g, b, temp });
+    MENTOR.fire('color_cool_selected', { r: r, g: g, b: b, temp: temp });
   } else {
-    MENTOR.fire('color_neutral_selected', { r, g, b, temp });
+    MENTOR.fire('color_neutral_selected', { r: r, g: g, b: b, temp: temp });
   }
 }
 
 // ── MENTOR MIXER HELPER ───────────────────────────────────────
-// Detects complement mixing and extreme ratios
 function fireMixTip() {
   var ratio = parseInt(document.getElementById('mix-ratio').value);
 
-  // Extreme ratio — heavy tint
   if (ratio <= 10 || ratio >= 90) {
-    MENTOR.fire('mixer_ratio_extreme', { ratio });
+    MENTOR.fire('mixer_ratio_extreme', { ratio: ratio });
     return;
   }
 
-  // Near-complementary mix detection
   var hslA = rgb2hsl(STATE.mixA.r, STATE.mixA.g, STATE.mixA.b);
   var hslB = rgb2hsl(STATE.mixB.r, STATE.mixB.g, STATE.mixB.b);
   var hueDiff = Math.abs(hslA.h - hslB.h);
   if (hueDiff > 180) hueDiff = 360 - hueDiff;
 
   if (hueDiff >= 140) {
-    MENTOR.fire('mixer_complements_mixed', { hslA, hslB, hueDiff });
+    MENTOR.fire('mixer_complements_mixed', { hslA: hslA, hslB: hslB, hueDiff: hueDiff });
+  }
+}
+
+// ── REFRESH WHEEL IF READY ────────────────────────────────────
+function refreshWheelIfReady() {
+  if (isWheelReady()) {
+    renderWheel();
   }
 }
 
@@ -146,25 +155,27 @@ function renderBaseColor() {
   var hex = rgb2hex(r, g, b);
 
   var swatch = document.getElementById('base-swatch');
-  var hexEl = document.getElementById('base-hex');
-  var rgbEl = document.getElementById('base-rgb');
+  var hexEl  = document.getElementById('base-hex');
+  var rgbEl  = document.getElementById('base-rgb');
 
   if (swatch) swatch.style.background = hex;
-  if (hexEl) hexEl.textContent = hex;
-  if (rgbEl) rgbEl.textContent = 'RGB ' + r + ', ' + g + ', ' + b;
+  if (hexEl)  hexEl.textContent = hex;
+  if (rgbEl)  rgbEl.textContent = 'RGB ' + r + ', ' + g + ', ' + b;
 
   // Temperature gauge
   var temp = colorTemp(r, g, b);
-  var pct = Math.max(2, Math.min(98, temp * 100));
+  var pct  = Math.max(2, Math.min(98, temp * 100));
   var indicator = document.getElementById('temp-indicator');
   if (indicator) {
-    indicator.style.left = pct + '%';
+    indicator.style.left    = pct + '%';
     indicator.style.display = 'block';
   }
 
   var debug = document.getElementById('temp-debug');
   if (debug) {
-    debug.textContent = 'TEMP DEBUG: rgb=' + r + ',' + g + ',' + b + ' temp=' + temp.toFixed(3) + ' pct=' + pct.toFixed(1) + ' indicator=' + (indicator ? 'yes' : 'no');
+    debug.textContent = 'TEMP DEBUG: rgb=' + r + ',' + g + ',' + b +
+      ' temp=' + temp.toFixed(3) + ' pct=' + pct.toFixed(1) +
+      ' indicator=' + (indicator ? 'yes' : 'no');
   }
 
   // Fire mentor tip based on temperature
@@ -173,15 +184,17 @@ function renderBaseColor() {
   renderSchemeGrid();
   renderActivePalette();
   renderTheory();
+
+  // Refresh wheel harmony dots if wheel has been visited
+  refreshWheelIfReady();
 }
 
-// ── MENTOR SCHEME TIP HELPER ──────────────────────────────────
-// Updates the secondary mentor cards on non-color tabs too
+// ── MENTOR TAB CARD UPDATER ───────────────────────────────────
 function updateTabMentorCard(slot, tipId, context) {
-  var textEl = document.getElementById('mentor-tip-text-' + slot);
-  var levelEl = document.getElementById('mentor-level-badge-' + slot);
-  var card = document.getElementById('mentor-tip-card-' + slot);
-  var deepBtn = document.getElementById('mentor-deep-btn-' + slot);
+  var textEl   = document.getElementById('mentor-tip-text-' + slot);
+  var levelEl  = document.getElementById('mentor-level-badge-' + slot);
+  var card     = document.getElementById('mentor-tip-card-' + slot);
+  var deepBtn  = document.getElementById('mentor-deep-btn-' + slot);
   var resultEl = document.getElementById('mentor-deep-result-' + slot);
 
   if (!textEl) return;
@@ -194,22 +207,21 @@ function updateTabMentorCard(slot, tipId, context) {
 
   if (levelEl) {
     levelEl.textContent = MENTOR.level.toUpperCase();
-    levelEl.className = 'mentor-level-badge mentor-level-' + MENTOR.level;
+    levelEl.className   = 'mentor-level-badge mentor-level-' + MENTOR.level;
   }
   if (resultEl) {
     resultEl.style.display = 'none';
-    resultEl.innerHTML = '';
+    resultEl.innerHTML     = '';
   }
   if (deepBtn) {
-    deepBtn.disabled = false;
+    deepBtn.disabled    = false;
     deepBtn.textContent = '✦ Go Deeper';
+    deepBtn.dataset.tipId = tipId;
     if (MENTOR.isOnline) {
       deepBtn.classList.remove('mentor-deep-offline');
     } else {
       deepBtn.classList.add('mentor-deep-offline');
     }
-    // Store current tip on the button for goDeeper to use
-    deepBtn.dataset.tipId = tipId;
   }
   if (card) {
     card.classList.remove('mentor-pulse');
@@ -225,15 +237,17 @@ function renderSchemeGrid() {
   Object.keys(SCHEMES).forEach(function(key) {
     var scheme = SCHEMES[key];
     var colors = getHarmonyColors(STATE.baseColor, key);
-    var div = document.createElement('div');
+    var div    = document.createElement('div');
     div.className = 'scheme-card' + (key === STATE.activeScheme ? ' active' : '');
     div.onclick = function() {
       STATE.activeScheme = key;
       renderSchemeGrid();
       renderActivePalette();
       renderTheory();
-      // Fire mentor tip for scheme
+      // Fire mentor tip for this scheme
       MENTOR.fire('scheme_' + key);
+      // Refresh wheel dots with new scheme
+      refreshWheelIfReady();
     };
     var swatches = colors.map(function(c) {
       return '<div class="swatch" style="background:' + rgb2hex(c.r, c.g, c.b) + '"></div>';
@@ -245,7 +259,7 @@ function renderSchemeGrid() {
 
 // ── ACTIVE PALETTE ────────────────────────────────────────────
 function renderActivePalette() {
-  var strip = document.getElementById('palette-strip');
+  var strip  = document.getElementById('palette-strip');
   var colors = getHarmonyColors(STATE.baseColor, STATE.activeScheme);
   strip.innerHTML = colors.map(function(c) {
     var hex = rgb2hex(c.r, c.g, c.b);
@@ -272,14 +286,14 @@ function renderValueScale(rgb) {
 
 // ── MIXER ─────────────────────────────────────────────────────
 function updateMix() {
-  var t = parseInt(document.getElementById('mix-ratio').value) / 100;
+  var t   = parseInt(document.getElementById('mix-ratio').value) / 100;
   var mix = mixPigments(STATE.mixA, STATE.mixB, t);
   var hex = rgb2hex(mix.r, mix.g, mix.b);
   document.getElementById('mix-result-swatch').style.background = hex;
-  document.getElementById('mix-result-hex').textContent = hex;
-  document.getElementById('mix-result-rgb').textContent = 'RGB ' + mix.r + ', ' + mix.g + ', ' + mix.b;
-  document.getElementById('ratio-a-label').textContent = 'A ' + (100 - Math.round(t * 100)) + '%';
-  document.getElementById('ratio-b-label').textContent = 'B ' + Math.round(t * 100) + '%';
+  document.getElementById('mix-result-hex').textContent         = hex;
+  document.getElementById('mix-result-rgb').textContent         = 'RGB ' + mix.r + ', ' + mix.g + ', ' + mix.b;
+  document.getElementById('ratio-a-label').textContent          = 'A ' + (100 - Math.round(t * 100)) + '%';
+  document.getElementById('ratio-b-label').textContent          = 'B ' + Math.round(t * 100) + '%';
   renderValueScale(mix);
   STATE._mixResult = mix;
 
@@ -294,8 +308,8 @@ function updateMix() {
 function _getActiveMixTipId() {
   var ratio = parseInt(document.getElementById('mix-ratio').value);
   if (ratio <= 10 || ratio >= 90) return 'mixer_ratio_extreme';
-  var hslA = rgb2hsl(STATE.mixA.r, STATE.mixA.g, STATE.mixA.b);
-  var hslB = rgb2hsl(STATE.mixB.r, STATE.mixB.g, STATE.mixB.b);
+  var hslA    = rgb2hsl(STATE.mixA.r, STATE.mixA.g, STATE.mixA.b);
+  var hslB    = rgb2hsl(STATE.mixB.r, STATE.mixB.g, STATE.mixB.b);
   var hueDiff = Math.abs(hslA.h - hslB.h);
   if (hueDiff > 180) hueDiff = 360 - hueDiff;
   if (hueDiff >= 140) return 'mixer_complements_mixed';
@@ -305,7 +319,7 @@ function _getActiveMixTipId() {
 // ── SAVE PALETTE ──────────────────────────────────────────────
 function savePalette() {
   var colors = getHarmonyColors(STATE.baseColor, STATE.activeScheme);
-  var hexes = colors.map(function(c) { return rgb2hex(c.r, c.g, c.b); });
+  var hexes  = colors.map(function(c) { return rgb2hex(c.r, c.g, c.b); });
   STATE.savedPalettes.unshift({ scheme: SCHEMES[STATE.activeScheme].name, colors: hexes, ts: Date.now() });
   if (STATE.savedPalettes.length > 10) STATE.savedPalettes.pop();
   try { localStorage.setItem('pg_palettes', JSON.stringify(STATE.savedPalettes)); } catch (e) {}
@@ -324,7 +338,13 @@ function renderSaved() {
     var chips = p.colors.map(function(h) {
       return '<div style="flex:1;border-radius:4px;background:' + h + ';cursor:pointer" onclick="copyToClipboard(' + JSON.stringify(h) + ')"></div>';
     }).join('');
-    return '<div style="display:flex;gap:6px;align-items:center"><div style="flex:1"><div style="font-family:var(--font-mono);font-size:0.58rem;color:var(--muted);margin-bottom:4px">' + p.scheme + '</div><div style="display:flex;gap:3px;height:24px">' + chips + '</div></div><button onclick="deletePalette(' + i + ')" style="font-size:0.8rem;color:var(--muted);padding:4px">x</button></div>';
+    return '<div style="display:flex;gap:6px;align-items:center">' +
+      '<div style="flex:1">' +
+        '<div style="font-family:var(--font-mono);font-size:0.58rem;color:var(--muted);margin-bottom:4px">' + p.scheme + '</div>' +
+        '<div style="display:flex;gap:3px;height:24px">' + chips + '</div>' +
+      '</div>' +
+      '<button onclick="deletePalette(' + i + ')" style="font-size:0.8rem;color:var(--muted);padding:4px">x</button>' +
+    '</div>';
   }).join('');
 }
 
@@ -385,14 +405,13 @@ function wireEvents() {
   // Mix ratio
   document.getElementById('mix-ratio').addEventListener('input', updateMix);
 
-  // Grid buttons — fire mentor tip on switch
+  // Grid buttons
   document.querySelectorAll('.grid-tool-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
       document.querySelectorAll('.grid-tool-btn').forEach(function(b) { b.classList.remove('active'); });
       btn.classList.add('active');
       STATE.activeGrid = btn.dataset.grid;
       showToast(btn.dataset.grid + ' grid selected');
-      // Fire grid mentor tip
       var tipId = 'grid_' + btn.dataset.grid;
       MENTOR.fire(tipId);
       updateTabMentorCard('grid', tipId, {});
@@ -407,13 +426,11 @@ function wireEvents() {
     document.getElementById('scale-val').textContent = (e.target.value / 10).toFixed(1) + 'x';
   });
 
-  // ── MENTOR deep dive buttons on tab cards ──────────────────
   // Wheel deep dive
   var deepWheel = document.getElementById('mentor-deep-btn-wheel');
   if (deepWheel) {
     deepWheel.addEventListener('click', function() {
-      var tipId = deepWheel.dataset.tipId || 'wheel_opened';
-      _goDepperForSlot('wheel', tipId);
+      _goDeepForSlot('wheel', deepWheel.dataset.tipId || 'wheel_opened');
     });
   }
 
@@ -421,8 +438,7 @@ function wireEvents() {
   var deepMixer = document.getElementById('mentor-deep-btn-mixer');
   if (deepMixer) {
     deepMixer.addEventListener('click', function() {
-      var tipId = deepMixer.dataset.tipId || 'mixer_opened';
-      _goDepperForSlot('mixer', tipId);
+      _goDeepForSlot('mixer', deepMixer.dataset.tipId || 'mixer_opened');
     });
   }
 
@@ -430,14 +446,13 @@ function wireEvents() {
   var deepGrid = document.getElementById('mentor-deep-btn-grid');
   if (deepGrid) {
     deepGrid.addEventListener('click', function() {
-      var tipId = deepGrid.dataset.tipId || 'grid_perspective';
-      _goDepperForSlot('grid', tipId);
+      _goDeepForSlot('grid', deepGrid.dataset.tipId || 'grid_perspective');
     });
   }
 }
 
 // ── GO DEEPER FOR TAB CARDS ───────────────────────────────────
-async function _goDepperForSlot(slot, tipId) {
+async function _goDeepForSlot(slot, tipId) {
   if (!MENTOR.isOnline) {
     var resultEl = document.getElementById('mentor-deep-result-' + slot);
     if (resultEl) {
@@ -447,16 +462,21 @@ async function _goDepperForSlot(slot, tipId) {
     return;
   }
 
-  var deepBtn = document.getElementById('mentor-deep-btn-' + slot);
+  var deepBtn  = document.getElementById('mentor-deep-btn-' + slot);
   var resultEl = document.getElementById('mentor-deep-result-' + slot);
 
-  if (deepBtn) { deepBtn.textContent = '⟳ Thinking...'; deepBtn.disabled = true; }
+  if (deepBtn)  { deepBtn.textContent = '⟳ Thinking...'; deepBtn.disabled = true; }
   if (resultEl) { resultEl.style.display = 'block'; resultEl.innerHTML = '<span class="mentor-thinking">Consulting the mentor...</span>'; }
 
   var tip = MENTOR.TIPS[tipId];
   if (!tip) return;
 
-  var prompt = 'You are PRISM-GAUGE, an expert art mentor specializing in color theory, composition, and acrylic painting technique. The artist is at ' + MENTOR.level + ' level and has made ' + MENTOR.interactions + ' interactions with the app.\n\n' + tip.deeper_context + '\n\nRespond in 3-4 short paragraphs. Be specific, practical, and inspiring. Use painter\'s language. Reference real artists or techniques where relevant. Address the artist directly. Do not use bullet points — write in flowing, mentor-style prose.';
+  var prompt = 'You are PRISM-GAUGE, an expert art mentor specializing in color theory, composition, and acrylic painting technique. ' +
+    'The artist is at ' + MENTOR.level + ' level and has made ' + MENTOR.interactions + ' interactions with the app.\n\n' +
+    tip.deeper_context + '\n\n' +
+    'Respond in 3-4 short paragraphs. Be specific, practical, and inspiring. Use painter\'s language. ' +
+    'Reference real artists or techniques where relevant. Address the artist directly. ' +
+    'Do not use bullet points — write in flowing, mentor-style prose.';
 
   try {
     var response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -471,7 +491,9 @@ async function _goDepperForSlot(slot, tipId) {
     var data = await response.json();
     var text = data.content?.[0]?.text || 'Could not load. Try again.';
     if (resultEl) {
-      resultEl.innerHTML = text.split('\n\n').map(function(p) { return '<p>' + p + '</p>'; }).join('');
+      resultEl.innerHTML = text.split('\n\n').map(function(p) {
+        return '<p>' + p + '</p>';
+      }).join('');
     }
   } catch (e) {
     if (resultEl) {
@@ -483,53 +505,40 @@ async function _goDepperForSlot(slot, tipId) {
 }
 
 // ── WHEEL COLOR PICK HOOK ─────────────────────────────────────
-// Called from wheel.js when user taps the wheel
 function onWheelColorPicked(rgb) {
   STATE.wheelColor = rgb;
 
-  var hex = rgb2hex(rgb.r, rgb.g, rgb.b);
+  var hex     = rgb2hex(rgb.r, rgb.g, rgb.b);
   var swatchEl = document.getElementById('wheel-swatch');
-  var hexEl = document.getElementById('wheel-hex');
-  var rgbEl = document.getElementById('wheel-rgb');
+  var hexEl    = document.getElementById('wheel-hex');
+  var rgbEl    = document.getElementById('wheel-rgb');
 
   if (swatchEl) swatchEl.style.background = hex;
-  if (hexEl) hexEl.textContent = hex;
-  if (rgbEl) rgbEl.textContent = 'RGB ' + rgb.r + ', ' + rgb.g + ', ' + rgb.b;
+  if (hexEl)    hexEl.textContent = hex;
+  if (rgbEl)    rgbEl.textContent = 'RGB ' + rgb.r + ', ' + rgb.g + ', ' + rgb.b;
 
-  // Fire wheel mentor tip
   MENTOR.fire('wheel_color_picked', rgb);
   updateTabMentorCard('wheel', 'wheel_color_picked', rgb);
 }
 
 // ── INIT ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
-  // Load saved palettes
   try { STATE.savedPalettes = JSON.parse(localStorage.getItem('pg_palettes') || '[]'); } catch (e) { STATE.savedPalettes = []; }
 
-  // Init mixer swatches
   document.getElementById('mix-a-swatch').style.background = rgb2hex(STATE.mixA.r, STATE.mixA.g, STATE.mixA.b);
   document.getElementById('mix-b-swatch').style.background = rgb2hex(STATE.mixB.r, STATE.mixB.g, STATE.mixB.b);
 
-  // Wire all events
   wireEvents();
-
-  // Render initial state
   renderBaseColor();
   renderSaved();
   updateMix();
   setStatus('offline');
 
-  // Init mentor system
   MENTOR.init();
 
-  // Fire initial grid tip
-  updateTabMentorCard('grid', 'grid_perspective', {});
-
-  // Fire initial mixer tip
-  updateTabMentorCard('mixer', 'mixer_opened', {});
-
-  // Fire initial wheel tip
-  updateTabMentorCard('wheel', 'wheel_opened', {});
+  updateTabMentorCard('grid',  'grid_perspective', {});
+  updateTabMentorCard('mixer', 'mixer_opened',     {});
+  updateTabMentorCard('wheel', 'wheel_opened',     {});
 
   showToast('PRISM-GAUGE initialized', 2200);
 });
