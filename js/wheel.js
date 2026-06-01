@@ -37,6 +37,9 @@ function pickWheelColor(e){
   document.getElementById('wheel-swatch').style.background=hex;
   document.getElementById('wheel-hex').textContent=hex;
   document.getElementById('wheel-rgb').textContent='RGB '+c.r+', '+c.g+', '+c.b;
+
+  // ── Mentor hook ──────────────────────────────────────────────
+  if(typeof onWheelColorPicked==='function') onWheelColorPicked(c);
 }
 
 function initWheel(){
