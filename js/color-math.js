@@ -78,7 +78,22 @@ function hsl2rgb(h,s,l){
 
 // ── COLOR TEMPERATURE ─────────────────────────
 function colorTemp(r,g,b){
-  return Math.max(0,Math.min(1,(r-b+255)/510));
+  // Normalize to 0-1
+  const rn = r/255, gn = g/255, bn = b/255;
+
+  // Warm energy: red + yellow (red+green) contribution
+  // Cool energy: blue + cyan (green+blue) contribution
+  // Green alone is neutral-to-cool perceptually
+  const warm = rn + (rn * gn * 0.5);          // red, boosted by yellow
+  const cool = bn + (gn * bn * 0.5) + (gn * 0.3); // blue, cyan, green penalty
+
+  // Raw score 0=cool, 1=warm
+  const raw = warm / (warm + cool + 0.0001);
+
+  // Remap 0.25–0.75 → 0–1 so indicator travels the full bar
+  const stretched = (raw - 0.25) / 0.50;
+  return Math.max(0, Math.min(1, stretched));
+}
 }
 
 // ── VALUE SCALE ───────────────────────────────
