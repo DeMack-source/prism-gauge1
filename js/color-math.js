@@ -94,7 +94,6 @@ function colorTemp(r,g,b){
   const stretched = (raw - 0.25) / 0.50;
   return Math.max(0, Math.min(1, stretched));
 }
-}
 
 // ── VALUE SCALE ───────────────────────────────
 function getValueScale(rgb,steps=11){
@@ -111,7 +110,7 @@ const SCHEMES={
   complementary:{
     name:'Complementary',
     offsets:[0,180],
-    desc:'Opposite colors create <strong>maximum contrast</strong>. Use one to dominate (80%) and the other as a small accent. Never mix them 50/50 on your palette — they neutralize each other into mud.'
+    desc:'Opposite colors create <strong>maximum contrast</strong>. Use one to dominate (80%) and the other as a small accent. Never mix them 50/50 on your palette — they neutralize each other into dull brown.'
   },
   analogous:{
     name:'Analogous',
