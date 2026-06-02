@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>PRISM-GAUGE Debug Console</title>
+  <style>
+    body { background: #1a1a1a; color: #00ff00; font-family: monospace; padding: 20px; }
+    .log { margin: 5px 0; }
+    .error { color: #ff4444; }
+    .warning { color: #ffaa00; }
+    .success { color: #44ff44; }
+    .container { max-width: 1200px; }
+    h1 { color: #00f2ff; }
+    button { padding: 10px 20px; margin: 10px 5px 10px 0; cursor: pointer; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>🔧 PRISM-GAUGE Debug Console</h1>
+  
+  <div>
+    <button onclick="testColorMath()">Test Color Math</button>
+    <button onclick="testDOMReady()">Test DOM Ready</button>
+    <button onclick="testEventListeners()">Test Events</button>
+    <button onclick="clearLogs()">Clear Logs</button>
+  </div>
+
+  <div id="logs"></div>
+</div>
+
+<script>
+function log(msg, type = 'info') {
+  const logsDiv = document.getElementById('logs');
+  const logEl = document.createElement('div');
+  logEl.className = 'log ' + type;
+  logEl.textContent = '[' + new Date().toLocaleTimeString() + '] ' + msg;
+  logsDiv.appendChild(logEl);
+  console.log(msg);
+}
+
+function clearLogs() {
+  document.getElementById('logs').innerHTML = '';
+  log('Logs cleared', 'success');
+}
+
+// Test color math functions
+function testColorMath() {
+  log('--- Testing Color Math ---', 'warning');
+  
+  try {
+    if (typeof rgb2hex !== 'function') throw new Error('rgb2hex not loaded');
+    log('✓ rgb2hex loaded', 'success');
+  } catch (e) {
+    log('✗ rgb2hex: ' + e.message, 'error');
+  }
+
+  try {
+    if (typeof hex2rgb !== 'function') throw new Error('hex2rgb not loaded');
+    log('✓ hex2rgb loaded', 'success');
+  } catch (e) {
+    log('✗ hex2rgb: ' + e.message, 'error');
+  }
+
+  try {
+    if (typeof colorTemp !== 'function') throw new Error('colorTemp not loaded');
+    const temp = colorTemp(255, 0, 0); // Pure red
+    log('✓ colorTemp loaded, red temp = ' + temp.toFixed(3), 'success');
+  } catch (e) {
+    log('✗ colorTemp: ' + e.message, 'error');
+  }
+
+  try {
+    if (typeof rgb2hsl !== 'function') throw new Error('rgb2hsl not loaded');
+    log('✓ rgb2hsl loaded', 'success');
+  } catch (e) {
+    log('✗ rgb2hsl: ' + e.message, 'error');
+  }
+
+  try {
+    if (typeof getHarmonyColors !== 'function') throw new Error('getHarmonyColors not loaded');
+    log('✓ getHarmonyColors loaded', 'success');
+  } catch (e) {
+    log('✗ getHarmonyColors: ' + e.message, 'error');
+  }
+}
+
+// Test DOM ready
+function testDOMReady() {
+  log('--- Testing DOM Elements ---', 'warning');
+  
+  const elements = [
+    'temp-indicator',
+    'base-swatch',
+    'mentor-tip-card',
+    'mix-ratio',
+    'color-wheel-canvas',
+    'scheme-grid'
+  ];
+
+  elements.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      log('✓ Found: ' + id, 'success');
+    } else {
+      log('✗ Missing: ' + id, 'error');
+    }
+  });
+}
+
+// Test global objects
+function testEventListeners() {
+  log('--- Testing Global Objects ---', 'warning');
+  
+  try {
+    if (typeof STATE === 'undefined') throw new Error('STATE not loaded');
+    log('✓ STATE object loaded', 'success');
+    log('  Base color: RGB(' + STATE.baseColor.r + ',' + STATE.baseColor.g + ',' + STATE.baseColor.b + ')', 'info');
+  } catch (e) {
+    log('✗ STATE: ' + e.message, 'error');
+  }
+
+  try {
+    if (typeof MENTOR === 'undefined') throw new Error('MENTOR not loaded');
+    log('✓ MENTOR object loaded', 'success');
+    log('  Level: ' + MENTOR.level + ', Interactions: ' + MENTOR.interactions, 'info');
+  } catch (e) {
+    log('✗ MENTOR: ' + e.message, 'error');
+  }
+
+  try {
+    if (typeof SCHEMES === 'undefined') throw new Error('SCHEMES not loaded');
+    log('✓ SCHEMES object loaded with ' + Object.keys(SCHEMES).length + ' schemes', 'success');
+  } catch (e) {
+    log('✗ SCHEMES: ' + e.message, 'error');
+  }
+
+  try {
+    if (typeof switchTab !== 'function') throw new Error('switchTab function not loaded');
+    log('✓ switchTab function loaded', 'success');
+  } catch (e) {
+    log('✗ switchTab: ' + e.message, 'error');
+  }
+
+  try {
+    if (typeof renderBaseColor !== 'function') throw new Error('renderBaseColor function not loaded');
+    log('✓ renderBaseColor function loaded', 'success');
+  } catch (e) {
+    log('✗ renderBaseColor: ' + e.message, 'error');
+  }
+}
+
+// Auto-test on page load
+window.addEventListener('load', function() {
+  log('Page loaded, running tests...', 'warning');
+  setTimeout(() => {
+    testColorMath();
+    testDOMReady();
+    testEventListeners();
+  }, 100);
+});
+
+log('Debug console ready. Click buttons to test.', 'success');
+</script>
+
+<!-- Load all scripts in order -->
+<script src="js/color-math.js"></script>
+<script src="js/wheel.js"></script>
+<script src="js/mentor.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
