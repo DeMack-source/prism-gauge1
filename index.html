@@ -14,9 +14,31 @@
   <link rel="stylesheet" href="css/components.css?v=tempvisible2">
 
 <style>
-/* ── TEMP BAR ─────────────────────────────────────────── */
-.temp-bar{position:relative!important;height:14px!important;border-radius:999px!important;overflow:visible!important;background:linear-gradient(90deg,#3b82f6 0%,#e5e7eb 50%,#ef4444 100%)!important;margin:8px 0!important;width:100%!important;}
-#temp-indicator{position:absolute!important;top:50%!important;left:50%!important;width:16px!important;height:16px!important;border-radius:50%!important;background:white!important;border:3px solid #08080f!important;box-shadow:0 0 8px rgba(0,0,0,0.6)!important;pointer-events:none!important;transform:translate(-50%,-50%)!important;transition:left 0.4s ease!important;z-index:99!important;}
+.temp-bar {
+  position: relative !important;
+  height: 14px !important;
+  border-radius: 999px !important;
+  overflow: visible !important;
+  background: linear-gradient(90deg, #3b82f6 0%, #e5e7eb 50%, #ef4444 100%) !important;
+  margin: 8px 0 !important;
+  width: 100% !important;
+}
+
+#temp-indicator {
+  position: absolute !important;
+  top: 50% !important;
+  /* left is set by JavaScript — do NOT add left here */
+  width: 16px !important;
+  height: 16px !important;
+  border-radius: 50% !important;
+  background: white !important;
+  border: 3px solid #08080f !important;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.6) !important;
+  pointer-events: none !important;
+  transform: translate(-50%, -50%) !important;
+  transition: left 0.4s ease !important;
+  z-index: 99 !important;
+}
 
 /* ── MENTOR CARD ──────────────────────────────────────── */
 .mentor-card {
