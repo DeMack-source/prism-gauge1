@@ -26,7 +26,7 @@
     guides: true, guideColor: '#00f2ff', mode: 1, horizon: 0.5,
     vps: [{x:0.5, y:0.5, kind:'h'}],
     locked: false, zen: false, sketchColor: '#ff3ca0',
-    orientation: 'portrait', aspect: 0.5625
+    orientation: 'portrait', aspect: 0.5625, tool: 'move'
   };
   function setStatus(t){ if(statusEl) statusEl.textContent = t; }
   function frameW(){ return frame.clientWidth || 300; }
@@ -153,14 +153,20 @@
           document.getElementById('prac-horizon-slider').value = Math.round(S.horizon * 100);
           document.getElementById('prac-horizon-val').textContent = Math.round(S.horizon * 100) + '%';
           S.vps.forEach(function(v){ if(v.kind === 'h') v.y = S.horizon; });
+          el.style.top = (S.horizon * 100) + '%';
         } else {
           // Deliberately NOT clamped to [0,1]: VPs may live off-frame.
           S.vps[idx].x = Math.max(-1.5, Math.min(2.5, x));
           S.vps[idx].y = Math.max(-1.5, Math.min(2.5, y));
+          // Move only THIS handle element. Never call redraw() mid-drag:
+          // renderHandles() rebuilds the layer and destroys the handle
+          // being dragged, which is what made a drag stick after one step.
+          el.style.left = (S.vps[idx].x * rect.width) + 'px';
+          el.style.top = (S.vps[idx].y * rect.height) + 'px';
         }
-        redraw();
+        drawOverlay();
       }
-      function up(){ el.removeEventListener('pointermove', move); el.removeEventListener('pointerup', up); }
+      function up(){ el.removeEventListener('pointermove', move); el.removeEventListener('pointerup', up); redraw(); }
       el.addEventListener('pointermove', move);
       el.addEventListener('pointerup', up);
     });
@@ -230,13 +236,34 @@
     ctx.clearRect(0, 0, sketchCanvas.width, sketchCanvas.height);
     setStatus('Sketch cleared.');
   });
+  function setTool(tool){
+    S.tool = tool;
+    panel.classList.toggle('prac-tool-move', tool === 'move');
+    panel.classList.toggle('prac-tool-sketch', tool === 'sketch');
+    document.querySelectorAll('[data-prac-tool]').forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-prac-tool') === tool);
+    });
+    setStatus(tool === 'move'
+      ? 'Move mode — drag the horizon and vanishing points. A finger on the photo scrolls the page to the controls.'
+      : 'Sketch mode — draw on the photo. Switch back to Move to drag the horizon and vanishing points.');
+  }
+  document.querySelectorAll('[data-prac-tool]').forEach(function(b){
+    b.addEventListener('click', function(){ setTool(b.getAttribute('data-prac-tool')); });
+  });
   document.getElementById('prac-lock-btn').addEventListener('click', function(e){
     S.locked = !S.locked;
     e.target.textContent = S.locked ? '🔒 Locked' : '🔓 Unlock';
     e.target.classList.toggle('locked', S.locked);
+    var quick = document.getElementById('prac-lock-btn2');
+    if(quick){ quick.textContent = e.target.textContent; quick.classList.toggle('locked', S.locked); }
     setStatus(S.locked ? 'Locked — photo, grid and guides cannot be moved.' : 'Unlocked.');
     renderHandles();
   });
+  // Quick controls below the frame, so the user never has to scroll back
+  // up past the photo to reach Lock, Zen, or Export after sketching.
+  document.getElementById('prac-lock-btn2').addEventListener('click', function(){ document.getElementById('prac-lock-btn').click(); });
+  document.getElementById('prac-zen-btn2').addEventListener('click', function(){ document.getElementById('prac-zen-btn').click(); });
+  document.getElementById('prac-export-btn2').addEventListener('click', function(){ document.getElementById('prac-export-btn').click(); });
   function setZen(on){
     S.zen = on;
     panel.classList.toggle('prac-zen-mode', on);
@@ -265,7 +292,7 @@
       return { x: (e.clientX - r.left) / r.width * sketchCanvas.width, y: (e.clientY - r.top) / r.height * sketchCanvas.height };
     }
     sketchCanvas.addEventListener('pointerdown', function(e){
-      if(S.locked) return;
+      if(S.locked || S.tool !== 'sketch') return;
       drawing = true; last = pos(e);
       sketchCanvas.setPointerCapture(e.pointerId);
     });
@@ -281,6 +308,7 @@
     sketchCanvas.addEventListener('pointerup', end);
     sketchCanvas.addEventListener('pointercancel', end);
   })();
+  setTool('move');
   // Resize after the tab becomes visible (frame has no size while hidden).
   document.querySelectorAll('[data-tab="practice"]').forEach(function(b){
     b.addEventListener('click', function(){ setTimeout(pracResize, 80); });
