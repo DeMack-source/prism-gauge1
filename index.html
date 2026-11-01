@@ -995,12 +995,11 @@
 <script src="js/learn.js"></script>
 <script src="js/app.js?v=mentor1"></script>
 <script>
-  // Offline: register the service worker so the app shell is cached on the
-  // first connected visit and works with no Wi-Fi or data after that.
+  // Offline: register the service worker immediately (not on window load),
+  // so Chrome's install check sees an active worker on the second visit
+  // instead of reporting the app cannot be installed on the first one.
   if('serviceWorker' in navigator){
-    window.addEventListener('load', function(){
-      navigator.serviceWorker.register('./sw.js').catch(function(){ /* offline still works once cached; a failed register is not fatal */ });
-    });
+    navigator.serviceWorker.register('./sw.js').catch(function(){});
   }
 </script>
 </body>
