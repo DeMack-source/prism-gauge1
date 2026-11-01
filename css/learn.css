@@ -1,0 +1,64 @@
+/* Learn tab styles — scoped to #tab-learn so existing prism-gauge1 styles are untouched.
+   Variables come from css/tokens.css, unchanged. */
+.tab-btn[data-tab="learn"].active {
+  color: var(--gold); border-color: var(--gold);
+}
+.nav-btn[data-tab="learn"].active {
+  color: var(--gold); border-color: var(--gold); background: rgba(245,200,66,0.06);
+}
+#tab-learn .learn-progress {
+  border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px;
+  background: rgba(245,200,66,0.06); font-family: var(--font-mono);
+  font-size: 0.75rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.08em;
+}
+#tab-learn .learn-card {
+  border: 1px solid var(--border); border-radius: 12px; padding: 14px;
+  background: rgba(255,255,255,0.03); display: flex; flex-direction: column; gap: 10px;
+}
+#tab-learn .learn-card.done {
+  border-color: var(--green);
+}
+#tab-learn .learn-card h3 {
+  font-family: var(--font-head); font-size: 1rem; color: var(--text); margin: 0;
+}
+#tab-learn .learn-card p, #tab-learn .learn-card li {
+  font-size: 0.92rem; line-height: 1.55; color: var(--text);
+}
+#tab-learn .learn-card ul, #tab-learn .learn-card ol {
+  margin: 0 0 0 18px; display: flex; flex-direction: column; gap: 8px;
+}
+#tab-learn .learn-swatch-row {
+  display: flex; gap: 8px; flex-wrap: wrap; align-items: stretch;
+}
+#tab-learn .learn-swatch {
+  flex: 1 1 80px; min-height: 64px; border-radius: 10px; border: 1px solid var(--border);
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+  padding: 6px; font-family: var(--font-mono); font-size: 0.6rem; color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8); text-align: center;
+}
+#tab-learn .learn-slider {
+  width: 100%; min-height: 44px; accent-color: var(--gold);
+}
+#tab-learn .learn-color {
+  width: 100%; min-height: 44px; border: 1px solid var(--border); border-radius: 10px;
+  background: var(--surface2); padding: 4px; cursor: pointer;
+}
+#tab-learn .learn-btn {
+  min-height: 44px; padding: 10px 14px; border-radius: 10px;
+  border: 1px solid var(--border); background: rgba(255,255,255,0.05);
+  color: var(--text); font-family: var(--font-mono); font-size: 0.65rem;
+  text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; align-self: flex-start;
+}
+#tab-learn .learn-btn.done {
+  border-color: var(--green); color: var(--green);
+}
+#tab-learn .learn-why {
+  font-family: var(--font-mono); font-size: 0.65rem; line-height: 1.6; color: var(--muted);
+}
+#tab-learn .learn-example {
+  border: 1px solid var(--border-mid); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 8px;
+}
+#tab-learn .learn-example b { color: var(--gold); }
+.learn-why-note {
+  font-family: var(--font-mono); font-size: 0.65rem; line-height: 1.6; color: var(--muted); margin-top: 8px;
+}
