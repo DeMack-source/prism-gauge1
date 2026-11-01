@@ -546,7 +546,24 @@
               <div class="color-rgb" id="wheel-rgb">Drag the wheel</div>
             </div>
             <button class="icon-btn" id="set-base-wheel-btn" style="width:auto;padding:0 10px;font-size:0.55rem;font-family:var(--font-mono)">SET BASE</button>
-            <button class="icon-btn" id="wheel-harmony-toggle" style="width:auto;padding:0 10px;font-size:0.55rem;font-family:var(--font-mono)">Show harmony</button>
+            <button class="icon-btn" id="wheel-harmony-toggle" style="width:auto;padding:0 10px;font-size:0.55rem;font-family:var(--font-mono)">Hide harmony</button>
+          </div>
+        </div>
+
+        <div class="card" style="width:100%">
+          <div class="card-title">Scheme — dots move in tandem</div>
+          <p class="prac-note">Pick a system, then drag the wheel: every dot rotates with your color, keeping its spacing. The spread slider moves them all in or out together.</p>
+          <div class="prac-row" style="margin-top:8px">
+            <button class="prac-btn wheel-scheme-btn" data-scheme="complementary" type="button">Complementary</button>
+            <button class="prac-btn wheel-scheme-btn" data-scheme="analogous" type="button">Analogous</button>
+            <button class="prac-btn wheel-scheme-btn" data-scheme="triadic" type="button">Triadic</button>
+            <button class="prac-btn wheel-scheme-btn" data-scheme="splitComp" type="button">Split-Comp</button>
+            <button class="prac-btn wheel-scheme-btn" data-scheme="tetradic" type="button">Tetradic</button>
+            <button class="prac-btn wheel-scheme-btn" data-scheme="monochromatic" type="button">Mono</button>
+          </div>
+          <div class="slider-item" style="margin-top:10px">
+            <label><span>Spread — dots in / out (saturation)</span></label>
+            <input type="range" class="prac-slider" id="wheel-spread" min="0" max="100" value="100">
           </div>
         </div>
 
@@ -999,7 +1016,6 @@
 <!-- ── SCRIPTS ─────────────────────────────────────────────── -->
 <script src="js/color-math.js"></script>
 <script src="js/wheel.js"></script>
-<script src="js/wheel-drag.js"></script>
 <script src="js/mentor.js"></script>
 <script src="js/practice.js"></script>
 <script src="js/learn.js"></script>
