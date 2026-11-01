@@ -7,7 +7,17 @@ color: var(--gold); border-color: var(--gold);
 color: var(--gold); border-color: var(--gold); background: rgba(245,200,66,0.06);
 }#tab-practice .prac-controls {
 display: flex; flex-direction: column; gap: 12px;
-}#tab-practice .prac-row {
+}#tab-practice .prac-help {
+border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px;
+  background: rgba(245,200,66,0.06);
+}#tab-practice .prac-help summary {
+cursor: pointer; font-family: var(--font-mono); font-size: 0.75rem;
+  color: var(--gold); text-transform: uppercase; letter-spacing: 0.08em; min-height: 44px;
+  display: flex; align-items: center;
+}#tab-practice .prac-help ol {
+margin: 10px 0 0 18px; display: flex; flex-direction: column; gap: 8px;
+  font-size: 0.9rem; line-height: 1.5; color: var(--text);
+}#tab-practice .prac-help ol b { color: var(--gold); }#tab-practice .prac-row {
 display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
 }#tab-practice .prac-btn, #tab-practice .prac-size-btn, #tab-practice .prac-orient-btn {
 min-height: 44px; padding: 10px 14px; border-radius: 10px;
