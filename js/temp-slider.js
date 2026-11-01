@@ -9,9 +9,26 @@
   var bar = document.getElementById('temp-bar');
   var knob = document.getElementById('temp-indicator');
   if(!bar || !knob) return;
-  var dragging = false, sat = 60, light = 45;
+  var dragging = false, sat = 60, light = 45, lastPct = null;
+  // The old temperature formula (colorTemp) remaps most colors to the ends
+  // of the bar, so on release renderBaseColor() snapped the knob to one side
+  // or the other and it would never stay where the user left it. The knob
+  // now stays at the dragged position: temperature here IS the drag
+  // position (blue -> red-orange), and the color follows it.
+  if (typeof renderBaseColor === 'function' && !window._tempKnobWrapped) {
+    window._tempKnobWrapped = true;
+    var _origRenderBaseColor = renderBaseColor;
+    renderBaseColor = function(){
+      _origRenderBaseColor();
+      if (window.__tempKnobSet && lastPct !== null) {
+        knob.style.left = Math.max(2, Math.min(98, lastPct * 100)) + '%';
+      }
+    };
+  }
   function apply(pct){
     pct = Math.max(0, Math.min(1, pct));
+    lastPct = pct;
+    window.__tempKnobSet = true;
     var hue = 215 - pct * 195; // 0 = cool blue, 1 = warm red-orange
     var rgb = hsl2rgb(hue, sat, light);
     STATE.baseColor = rgb;
