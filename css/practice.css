@@ -38,14 +38,25 @@ min-height: 44px; background: var(--surface2); color: var(--text);
 width: 100%; min-height: 44px; accent-color: var(--gold);
 }#tab-practice .prac-frame {
 position: relative; width: 100%; margin: 0 auto; background: #05050a;
-  border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
-  touch-action: none; max-width: 100%;
+  border: 1px solid var(--border); border-radius: 12px; overflow: visible;
+  /* pan-y: a finger on the photo scrolls the page up/down to the controls.
+     Handles and the sketch canvas keep their own touch-action: none. */
+  touch-action: pan-y; max-width: 100%;
+}
+#tab-practice.prac-tool-move #prac-sketch-canvas {
+pointer-events: none;
+}
+#tab-practice .prac-quickbar {
+display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px;
+}
+#tab-practice .prac-quickbar .prac-btn.active {
+border-color: var(--gold); color: var(--gold); background: rgba(245,200,66,0.08);
 }#tab-practice .prac-frame canvas {
 position: absolute; inset: 0; width: 100%; height: 100%; display: block;
 }#tab-practice #prac-sketch-canvas {
 touch-action: none;
 }#tab-practice .prac-handle {
-position: absolute; width: 30px; height: 30px; border-radius: 50%;
+position: absolute; width: 44px; height: 44px; border-radius: 50%;
   background: var(--gold); border: 3px solid #fff; transform: translate(-50%,-50%);
   cursor: grab; z-index: 5; touch-action: none; box-shadow: 0 0 12px rgba(0,0,0,0.6);
 }#tab-practice .prac-handle.vp {
