@@ -3,7 +3,7 @@
    shell, and later visits work with no Wi-Fi or data at all.
    Web fonts are NOT cached on purpose — offline the app falls back to
    system fonts, so nothing blocks. User photos are never uploaded. */
-var CACHE = 'prism-gauge1-v5';
+var CACHE = 'prism-gauge1-v6';
 var ASSETS = [
   './',
   './index.html',
@@ -35,17 +35,35 @@ self.addEventListener('activate', function(e){
 });
 self.addEventListener('fetch', function(e){
   if(e.request.method !== 'GET') return;
+  var url = new URL(e.request.url);
+  var isAppFile = url.origin === self.location.origin &&
+    (e.request.mode === 'navigate' || e.request.destination === 'script' || e.request.destination === 'style');
+  if(isAppFile){
+    // NETWORK-FIRST for the app itself: on Wi-Fi the user always gets the
+    // newest page/scripts (this fixes repeated "update didn't work" reports
+    // caused by cache-first serving old pages). Offline, fall back to cache.
+    e.respondWith(fetch(e.request).then(function(res){
+      var copy = res.clone();
+      caches.open(CACHE).then(function(c){ c.put(e.request, copy); });
+      return res;
+    }).catch(function(){
+      return caches.match(e.request, {ignoreSearch: true}).then(function(hit){
+        if(hit) return hit;
+        if(e.request.mode === 'navigate') return caches.match('./index.html');
+        throw new Error('offline');
+      });
+    }));
+    return;
+  }
   e.respondWith(caches.match(e.request, {ignoreSearch: true}).then(function(hit){
     if(hit) return hit;
     return fetch(e.request).then(function(res){
       var copy = res.clone();
-      // Cache same-origin app files fetched later (e.g. app.js?v=...).
-      if(new URL(e.request.url).origin === self.location.origin){
+      if(url.origin === self.location.origin){
         caches.open(CACHE).then(function(c){ c.put(e.request, copy); });
       }
       return res;
     }).catch(function(){
-      // Offline + not cached: serve the app shell for page navigations.
       if(e.request.mode === 'navigate') return caches.match('./index.html');
       throw new Error('offline');
     });
