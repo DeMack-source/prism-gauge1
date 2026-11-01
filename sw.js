@@ -3,7 +3,7 @@
    shell, and later visits work with no Wi-Fi or data at all.
    Web fonts are NOT cached on purpose — offline the app falls back to
    system fonts, so nothing blocks. User photos are never uploaded. */
-var CACHE = 'prism-gauge1-v2';
+var CACHE = 'prism-gauge1-v3';
 var ASSETS = [
   './',
   './index.html',
@@ -20,6 +20,8 @@ var ASSETS = [
   './js/mentor.js',
   './js/practice.js',
   './js/learn.js',
+  './js/temp-slider.js',
+  './js/wheel-drag.js',
   './js/app.js'
 ];
 self.addEventListener('install', function(e){
