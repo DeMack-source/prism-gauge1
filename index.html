@@ -6,9 +6,13 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#08080f">
   <title>PRISM-GAUGE - Artist Intelligence System</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- No three.js: it was loaded from a CDN but never used anywhere in the
+       app, and a CDN script is exactly what would break offline use. -->
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css?v=tempvisible2">
@@ -990,6 +994,15 @@
 <script src="js/practice.js"></script>
 <script src="js/learn.js"></script>
 <script src="js/app.js?v=mentor1"></script>
+<script>
+  // Offline: register the service worker so the app shell is cached on the
+  // first connected visit and works with no Wi-Fi or data after that.
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('./sw.js').catch(function(){ /* offline still works once cached; a failed register is not fatal */ });
+    });
+  }
+</script>
 </body>
 </html>
 
