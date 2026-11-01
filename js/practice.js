@@ -269,6 +269,28 @@
     panel.classList.toggle('prac-zen-mode', on);
     setStatus(on ? 'Zen mode — tap the button above the photo to exit.' : 'Zen mode off.');
   }
+  // Frame size (magnification): starts small (65%) so the photo never
+  // fills the screen and traps the user. The user enlarges it on purpose,
+  // and Reset view always brings it back small + scrolls to the controls.
+  function setFrameSize(pct){
+    frame.style.width = pct + '%';
+    document.getElementById('prac-frame-size').value = pct;
+    document.getElementById('prac-frame-size-val').textContent = pct + '%';
+    setTimeout(pracResize, 30);
+  }
+  document.getElementById('prac-frame-size').addEventListener('input', function(e){ setFrameSize(parseInt(e.target.value, 10)); });
+  function resetView(){
+    setZen(false); setTool('move'); S.locked = false;
+    document.getElementById('prac-lock-btn').textContent = '🔓 Unlock';
+    document.getElementById('prac-lock-btn').classList.remove('locked');
+    document.getElementById('prac-lock-btn2').textContent = '🔓 Unlock';
+    document.getElementById('prac-lock-btn2').classList.remove('locked');
+    renderHandles(); setFrameSize(65);
+    panel.scrollTop = 0;
+    setStatus('View reset — frame small, Move mode, back at the controls.');
+  }
+  document.getElementById('prac-reset-view').addEventListener('click', resetView);
+  document.getElementById('prac-zen-exit2').addEventListener('click', function(){ setZen(false); });
   document.getElementById('prac-zen-btn').addEventListener('click', function(){ setZen(true); });
   document.getElementById('prac-zen-exit').addEventListener('click', function(){ setZen(false); });
   document.getElementById('prac-export-btn').addEventListener('click', function(){
@@ -310,8 +332,9 @@
   })();
   setTool('move');
   // Resize after the tab becomes visible (frame has no size while hidden).
+  // Returning to Practice never leaves the user trapped in Zen mode.
   document.querySelectorAll('[data-tab="practice"]').forEach(function(b){
-    b.addEventListener('click', function(){ setTimeout(pracResize, 80); });
+    b.addEventListener('click', function(){ if(S.zen) setZen(false); setTimeout(pracResize, 80); });
   });
   window.addEventListener('resize', pracResize);
   // Expose only for debugging from the console; not used by other tabs.
