@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css?v=tempvisible2">
+  <link rel="stylesheet" href="css/practice.css">
 
 <style>
 .temp-bar {
@@ -454,6 +455,7 @@
         <button class="tab-btn" data-tab="wheel">Wheel</button>
         <button class="tab-btn" data-tab="mixer">Mixer</button>
         <button class="tab-btn" data-tab="grid">Grid / AR</button>
+        <button class="tab-btn" data-tab="practice">Practice</button>
       </div>
     </div>
 
@@ -656,6 +658,108 @@
 
       </div>
 
+      <div class="tab-panel" id="tab-practice">
+        <div class="card prac-controls" id="prac-controls">
+          <div class="card-title">Practice — Photo, Grid &amp; Perspective</div>
+          <div class="prac-row">
+            <button class="prac-btn" id="prac-photo-btn" type="button">📷 Import photo</button>
+            <button class="prac-btn" id="prac-camera-btn" type="button">📸 Take photo</button>
+            <input type="file" id="prac-photo-input" class="prac-file" accept="image/*" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden">
+            <input type="file" id="prac-camera-input" class="prac-file" accept="image/*" capture="environment" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden">
+          </div>
+          <div>
+            <div class="card-title">Paper / frame</div>
+            <div class="prac-row">
+              <button class="prac-orient-btn active" id="prac-orient-portrait" type="button">Portrait</button>
+              <button class="prac-orient-btn" id="prac-orient-landscape" type="button">Landscape</button>
+            </div>
+            <div class="prac-row" style="margin-top:8px">
+              <button class="prac-size-btn active" type="button" data-prac-aspect="0.5625">9:16</button>
+              <button class="prac-size-btn" type="button" data-prac-aspect="0.8">4:5</button>
+              <button class="prac-size-btn" type="button" data-prac-aspect="1">1:1</button>
+              <button class="prac-size-btn" type="button" data-prac-aspect="1.3333">4:3</button>
+              <button class="prac-size-btn" type="button" data-prac-aspect="1.7778">16:9</button>
+              <button class="prac-size-btn" type="button" data-prac-aspect="0.7071">A4</button>
+            </div>
+            <p class="prac-note">Paper sizes set the frame shape only (aspect ratio). Your photo is fitted inside without stretching.</p>
+          </div>
+          <div>
+            <div class="card-title">Grid overlay</div>
+            <div class="slider-item">
+              <label><span>Divisions across</span><span id="prac-divisions-val">6</span></label>
+              <input type="range" class="prac-slider" id="prac-divisions" min="2" max="20" value="6">
+            </div>
+            <div class="prac-row">
+              <label class="prac-btn"><input type="checkbox" id="prac-labels-toggle" checked> Labels (A, B, C / 1, 2, 3)</label>
+              <select class="prac-select" id="prac-grid-color" aria-label="Grid color">
+                <option value="#ffffff" selected>Grid: White</option>
+                <option value="#000000">Grid: Black</option>
+                <option value="#ff3c3c">Grid: Red</option>
+                <option value="#00f2ff">Grid: Cyan</option>
+                <option value="#f5c842">Grid: Gold</option>
+              </select>
+            </div>
+            <div class="slider-item">
+              <label><span>Grid opacity</span><span id="prac-grid-opacity-val">70%</span></label>
+              <input type="range" class="prac-slider" id="prac-grid-opacity" min="10" max="100" value="70">
+            </div>
+          </div>
+          <div>
+            <div class="card-title">Perspective guides</div>
+            <div class="prac-row">
+              <select class="prac-select" id="prac-guide-mode" aria-label="Perspective mode">
+                <option value="1" selected>1-point</option>
+                <option value="2">2-point</option>
+                <option value="3">3-point</option>
+              </select>
+              <select class="prac-select" id="prac-guide-color" aria-label="Guide color">
+                <option value="#00f2ff" selected>Guides: Cyan</option>
+                <option value="#ff3ca0">Guides: Magenta</option>
+                <option value="#f5c842">Guides: Gold</option>
+                <option value="#39ff85">Guides: Green</option>
+                <option value="#ffffff">Guides: White</option>
+              </select>
+              <label class="prac-btn"><input type="checkbox" id="prac-guides-toggle" checked> Show guides</label>
+            </div>
+            <div class="slider-item">
+              <label><span>Horizon line (height)</span><span id="prac-horizon-val">50%</span></label>
+              <input type="range" class="prac-slider" id="prac-horizon-slider" min="0" max="100" value="50">
+            </div>
+            <p class="prac-note">Drag the green horizon handle, or a blue vanishing-point handle. Vanishing points can be dragged off the photo — they live in an extended space around the frame, not clamped to it.</p>
+          </div>
+          <div>
+            <div class="card-title">Draw over &amp; finish</div>
+            <div class="prac-row">
+              <select class="prac-select" id="prac-sketch-color" aria-label="Pencil color">
+                <option value="#ff3ca0" selected>Pencil: Magenta</option>
+                <option value="#ffffff">Pencil: White</option>
+                <option value="#000000">Pencil: Black</option>
+                <option value="#00f2ff">Pencil: Cyan</option>
+                <option value="#f5c842">Pencil: Gold</option>
+                <option value="#39ff85">Pencil: Green</option>
+              </select>
+              <button class="prac-btn" id="prac-sketch-clear" type="button">Clear sketch</button>
+            </div>
+            <div class="prac-row" style="margin-top:8px">
+              <button class="prac-btn" id="prac-lock-btn" type="button">🔓 Unlock</button>
+              <button class="prac-btn" id="prac-zen-btn" type="button">Zen mode</button>
+              <button class="prac-btn" id="prac-export-btn" type="button">⬇ Export PNG</button>
+            </div>
+            <div class="prac-status" id="prac-status">Import a photo to begin.</div>
+          </div>
+        </div>
+        <button class="prac-zen-exit" id="prac-zen-exit" type="button">Tap to exit Zen mode</button>
+        <div class="card" style="padding:0">
+          <div class="prac-frame" id="prac-frame" style="aspect-ratio: 9 / 16">
+            <canvas id="prac-photo-canvas"></canvas>
+            <canvas id="prac-overlay-canvas"></canvas>
+            <canvas id="prac-sketch-canvas"></canvas>
+            <div id="prac-vp-layer" style="position:absolute;inset:0;overflow:visible;pointer-events:none"></div>
+          </div>
+        </div>
+        <p class="prac-note">No lessons in this slice yet — this is the photo, grid, perspective, sketch and export workspace only. All work stays on this device; nothing is uploaded.</p>
+      </div>
+
     </div><!-- /main-panel -->
 
     <nav class="bottom-nav">
@@ -663,6 +767,7 @@
       <button class="nav-btn" data-tab="wheel"><span class="nav-icon">🔵</span>Wheel</button>
       <button class="nav-btn" data-tab="mixer"><span class="nav-icon">⚗️</span>Mixer</button>
       <button class="nav-btn" data-tab="grid"><span class="nav-icon">📐</span>Grid/AR</button>
+      <button class="nav-btn" data-tab="practice"><span class="nav-icon">✏️</span>Practice</button>
     </nav>
   </div><!-- /hud -->
 </div><!-- /app -->
@@ -747,6 +852,7 @@
 <script src="js/color-math.js"></script>
 <script src="js/wheel.js"></script>
 <script src="js/mentor.js"></script>
+<script src="js/practice.js"></script>
 <script src="js/app.js?v=mentor1"></script>
 </body>
 </html>
