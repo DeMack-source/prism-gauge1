@@ -8,6 +8,26 @@
 (function(){
   var canvas = document.getElementById('color-wheel-canvas');
   if(!canvas) return;
+  // Harmony dots off by default: the wheel shows only YOUR picked dot.
+  // The other dots were the current scheme's harmony colors for the base
+  // color — useful, but they cluttered the wheel when you just want to pick.
+  // They come back only when you tap "Show harmony" on the Wheel tab, which
+  // is exactly the on-demand triad/analogous view Kip described.
+  if(typeof drawHarmonyDots === 'function' && !window._origDrawHarmonyDots){
+    window._origDrawHarmonyDots = drawHarmonyDots;
+    drawHarmonyDots = function(){
+      if(window.__showHarmony){ return window._origDrawHarmonyDots(); }
+    };
+    var toggle = document.getElementById('wheel-harmony-toggle');
+    if(toggle){
+      toggle.addEventListener('click', function(){
+        window.__showHarmony = !window.__showHarmony;
+        toggle.textContent = window.__showHarmony ? 'Hide harmony' : 'Show harmony';
+        toggle.classList.toggle('active', !!window.__showHarmony);
+        if(typeof renderWheel === 'function') renderWheel();
+      });
+    }
+  }
   // Bigger touch target + no page-scroll fighting while dragging.
   var style = document.createElement('style');
   style.textContent = '#color-wheel-canvas{width:min(92vw,420px)!important;height:auto!important;touch-action:none!important;display:block;margin:0 auto;}'
