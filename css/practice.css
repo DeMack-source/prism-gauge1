@@ -36,13 +36,26 @@ min-height: 44px; background: var(--surface2); color: var(--text);
   font-family: var(--font-mono); font-size: 0.7rem;
 }#tab-practice .prac-slider {
 width: 100%; min-height: 44px; accent-color: var(--gold);
-}#tab-practice .prac-frame {
-position: relative; width: 100%; margin: 0 auto; background: #05050a;
+}#tab-practice .prac-escape {
+position: sticky; top: 0; z-index: 30; display: flex; flex-wrap: wrap; gap: 8px;
+  align-items: center; padding: 10px 12px; margin: -4px 0 4px;
+  background: rgba(0,0,0,0.92); border: 1px solid var(--gold); border-radius: 10px;
+}
+#tab-practice .prac-escape .prac-btn { min-height: 44px; }
+#tab-practice .prac-escape-label {
+font-family: var(--font-mono); font-size: 0.6rem; color: var(--gold);
+  text-transform: uppercase; letter-spacing: 0.08em; width: 100%;
+}
+#tab-practice .prac-frame {
+position: relative; width: 65%; margin: 0 auto; background: #05050a;
   border: 1px solid var(--border); border-radius: 12px; overflow: visible;
-  /* pan-y: a finger on the photo scrolls the page up/down to the controls.
-     Handles and the sketch canvas keep their own touch-action: none. */
+  /* pan-y on frame AND canvases: a finger on the photo scrolls the panel
+     up/down to the controls. Only handles and the sketch canvas (in Sketch
+     mode) keep touch-action: none. */
   touch-action: pan-y; max-width: 100%;
 }
+#tab-practice .prac-frame canvas { touch-action: pan-y; }
+#tab-practice.prac-tool-sketch #prac-sketch-canvas { touch-action: none; }
 #tab-practice.prac-tool-move #prac-sketch-canvas {
 pointer-events: none;
 }
