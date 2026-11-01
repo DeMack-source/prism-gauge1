@@ -537,13 +537,13 @@
 
         <!-- Mentor Card (shared instance moves here via JS) -->
         <div class="card" style="align-items:center">
-          <div class="card-title">Interactive Color Wheel - tap to pick</div>
+          <div class="card-title">Interactive Color Wheel - drag to pick</div>
           <canvas id="color-wheel-canvas" width="260" height="260"></canvas>
           <div class="color-info-row" style="margin-top:14px;width:100%">
             <div class="color-swatch-big" id="wheel-swatch"></div>
             <div class="color-values">
               <div class="color-hex" id="wheel-hex">-</div>
-              <div class="color-rgb" id="wheel-rgb">Tap the wheel</div>
+              <div class="color-rgb" id="wheel-rgb">Drag the wheel</div>
             </div>
             <button class="icon-btn" id="set-base-wheel-btn" style="width:auto;padding:0 10px;font-size:0.55rem;font-family:var(--font-mono)">SET BASE</button>
           </div>
@@ -998,6 +998,7 @@
 <!-- ── SCRIPTS ─────────────────────────────────────────────── -->
 <script src="js/color-math.js"></script>
 <script src="js/wheel.js"></script>
+<script src="js/wheel-drag.js"></script>
 <script src="js/mentor.js"></script>
 <script src="js/practice.js"></script>
 <script src="js/learn.js"></script>
