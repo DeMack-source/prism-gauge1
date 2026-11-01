@@ -22,29 +22,36 @@
 <style>
 .temp-bar {
   position: relative !important;
-  height: 14px !important;
+  /* Taller band + a knob that sticks out above and below it, so a finger
+     can actually grab it on a phone or tablet. */
+  height: 26px !important;
   border-radius: 999px !important;
   overflow: visible !important;
   background: linear-gradient(90deg, #3b82f6 0%, #e5e7eb 50%, #ef4444 100%) !important;
-  margin: 8px 0 !important;
+  margin: 14px 0 !important;
   width: 100% !important;
+  touch-action: none !important;
+  cursor: grab !important;
 }
+.temp-bar:active { cursor: grabbing !important; }
 
 #temp-indicator {
   position: absolute !important;
   top: 50% !important;
   /* left is set by JavaScript — do NOT add left here */
-  width: 16px !important;
-  height: 16px !important;
+  width: 36px !important;
+  height: 36px !important;
   border-radius: 50% !important;
   background: white !important;
   border: 3px solid #08080f !important;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.6) !important;
-  pointer-events: none !important;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.7) !important;
+  pointer-events: auto !important;
+  touch-action: none !important;
   transform: translate(-50%, -50%) !important;
   transition: left 0.4s ease !important;
   z-index: 99 !important;
 }
+#temp-indicator.temp-dragging { transition: none !important; }
 
 /* ── MENTOR CARD ──────────────────────────────────────── */
 .mentor-card {
@@ -497,7 +504,8 @@
           </div>
           <div class="temp-bar-wrap">
             <div class="card-title" style="margin-top:12px;margin-bottom:4px">Color Temperature</div>
-            <div class="temp-bar"><div id="temp-indicator"></div></div>
+            <div class="temp-bar" id="temp-bar" role="slider" aria-label="Color temperature: drag to warm or cool the base color" aria-valuemin="0" aria-valuemax="100"><div id="temp-indicator"></div></div>
+            <p class="prac-note" style="margin-top:2px">Drag the knob: left cools your base color toward blue, right warms it toward red. Its lightness stays put — only the temperature shifts.</p>
             <div id="temp-debug" style="font-size:11px;color:#9ca3af;margin-top:6px;">TEMP DEBUG: waiting</div>
             <div class="temp-labels"><span>Cool</span><span>Neutral</span><span>Warm</span></div>
           </div>
@@ -994,6 +1002,7 @@
 <script src="js/practice.js"></script>
 <script src="js/learn.js"></script>
 <script src="js/app.js?v=mentor1"></script>
+<script src="js/temp-slider.js"></script>
 <script>
   // Offline: register the service worker immediately (not on window load),
   // so Chrome's install check sees an active worker on the second visit
