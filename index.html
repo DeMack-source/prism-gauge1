@@ -744,6 +744,11 @@
           <div>
             <div class="card-title">Draw over &amp; finish</div>
             <div class="prac-row">
+              <button class="prac-btn active" data-prac-tool="move" type="button">✋ Move (drag points)</button>
+              <button class="prac-btn" data-prac-tool="sketch" type="button">✏️ Sketch (draw)</button>
+            </div>
+            <p class="prac-note">Move mode is the default: drag the horizon and vanishing points, and a finger on the photo scrolls the page. Switch to Sketch only when you want to draw — sketching cannot trap the page then.</p>
+            <div class="prac-row">
               <select class="prac-select" id="prac-sketch-color" aria-label="Pencil color">
                 <option value="#ff3ca0" selected>Pencil: Magenta</option>
                 <option value="#ffffff">Pencil: White</option>
@@ -770,6 +775,13 @@
             <canvas id="prac-sketch-canvas"></canvas>
             <div id="prac-vp-layer" style="position:absolute;inset:0;overflow:visible;pointer-events:none"></div>
           </div>
+        </div>
+        <div class="prac-quickbar">
+          <button class="prac-btn active" data-prac-tool="move" type="button">✋ Move</button>
+          <button class="prac-btn" data-prac-tool="sketch" type="button">✏️ Sketch</button>
+          <button class="prac-btn" id="prac-lock-btn2" type="button">🔓 Unlock</button>
+          <button class="prac-btn" id="prac-zen-btn2" type="button">Zen mode</button>
+          <button class="prac-btn" id="prac-export-btn2" type="button">⬇ Export PNG</button>
         </div>
         <p class="prac-note">Want the why behind this? Open the Learn tab — Lesson 4 walks through horizon and vanishing points. All work stays on this device; nothing is uploaded.</p>
       </div>
