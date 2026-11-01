@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css?v=tempvisible2">
   <link rel="stylesheet" href="css/practice.css">
+  <link rel="stylesheet" href="css/learn.css">
 
 <style>
 .temp-bar {
@@ -456,6 +457,7 @@
         <button class="tab-btn" data-tab="mixer">Mixer</button>
         <button class="tab-btn" data-tab="grid">Grid / AR</button>
         <button class="tab-btn" data-tab="practice">Practice</button>
+        <button class="tab-btn" data-tab="learn">Learn</button>
       </div>
     </div>
 
@@ -603,6 +605,7 @@
         <div class="card">
           <div class="card-title">Value Scale - Tints and Shades</div>
           <div id="value-scale" style="display:flex;gap:4px;height:36px;border-radius:8px;overflow:hidden"></div>
+          <p class="learn-why-note">Why it changes: adding white bounces more light back, so a tint reads lighter and softer. Adding black soaks light up, so a shade reads darker and heavier. Full lesson: Learn → Lesson 1, Tint vs Shade.</p>
         </div>
 
       </div>
@@ -768,7 +771,107 @@
             <div id="prac-vp-layer" style="position:absolute;inset:0;overflow:visible;pointer-events:none"></div>
           </div>
         </div>
-        <p class="prac-note">No lessons in this slice yet — this is the photo, grid, perspective, sketch and export workspace only. All work stays on this device; nothing is uploaded.</p>
+        <p class="prac-note">Want the why behind this? Open the Learn tab — Lesson 4 walks through horizon and vanishing points. All work stays on this device; nothing is uploaded.</p>
+      </div>
+
+      <!-- ── LEARN TAB ───────────────────────────────────────── -->
+      <div class="tab-panel" id="tab-learn">
+        <div class="card">
+          <div class="card-title">Learn — taught by using it</div>
+          <p class="learn-why-note" style="margin-top:0">Short lessons you do, not just read. Try each one with the real tools, then mark it tried. Your progress stays on this device only.</p>
+          <div class="learn-progress" id="learn-progress">0 of 6 tried</div>
+        </div>
+
+        <div class="card learn-card" id="learn-card-tint">
+          <h3>Lesson 1 — Tint vs Shade</h3>
+          <p>A tint is your colour plus white. A shade is your colour plus black. They are not the same kind of change, and that is why they look different.</p>
+          <label class="learn-why-note" for="learn-tint-base">Pick a base colour, then drag:</label>
+          <input type="color" class="learn-color" id="learn-tint-base" value="#c94040">
+          <input type="range" class="learn-slider" id="learn-tint-slider" min="-100" max="100" value="0">
+          <div class="learn-swatch-row"><div class="learn-swatch" id="learn-tint-result"></div></div>
+          <p id="learn-tint-explain">This is your base colour, untouched. Drag either way to see the why.</p>
+          <p><b>Why it changes:</b> white bounces more light back, so a tint reads lighter and softer. Black soaks light up, so a shade reads darker and heavier. That is the whole trick — you are changing how much light comes back to the eye.</p>
+          <button class="learn-btn" id="learn-done-tint" type="button">Mark as tried</button>
+        </div>
+
+        <div class="card learn-card" id="learn-card-acrylic">
+          <h3>Lesson 2 — The acrylic truth, and its cousins</h3>
+          <p><b>Acrylic dries darker.</b> So mix a touch lighter than the colour you actually want, on purpose. If you match it wet, it will land darker than you planned once it dries. This is the one that trips up almost everybody at first.</p>
+          <p><b>Watercolour goes the other way:</b> it dries lighter, because the water leaves and the pigment sits thinner on the paper. Paint it a touch darker than your target.</p>
+          <p><b>Gouache dries matte and flatter:</b> it loses some of its wet shine and can read a little lighter and duller dry. Judge a gouache colour once it is dry, not while it is still wet on the palette.</p>
+          <button class="learn-btn" id="learn-done-acrylic" type="button">Mark as tried</button>
+        </div>
+
+        <div class="card learn-card" id="learn-card-depth">
+          <h3>Lesson 3 — Warm advances, cool recedes</h3>
+          <p>Pick a colour and watch what distance does to it. Near things show the colour at full strength, warm and saturated. Far things sit behind air, so they come back lighter, cooler, and duller. That is not a style choice — it is how eyes read depth.</p>
+          <label class="learn-why-note" for="learn-depth-base">Pick a base colour:</label>
+          <input type="color" class="learn-color" id="learn-depth-base" value="#c94040">
+          <div class="learn-swatch-row">
+            <div class="learn-swatch" id="learn-depth-near"></div>
+            <div class="learn-swatch" id="learn-depth-mid"></div>
+            <div class="learn-swatch" id="learn-depth-far"></div>
+          </div>
+          <p><b>The rule, plain:</b> the farther it is, the lighter, cooler, and duller it gets. Use that when you choose a palette for a scene with depth — do not paint the far hills the same colour as the near tree.</p>
+          <button class="learn-btn" id="learn-done-depth" type="button">Mark as tried</button>
+        </div>
+
+        <div class="card learn-card" id="learn-card-horizon">
+          <h3>Lesson 4 — Horizon = eye level</h3>
+          <p>The horizon line is not where the sky meets the earth. It is your eye level. Stand up and it rises; crouch down and it drops. Everything in a level scene points at it.</p>
+          <ul>
+            <li>Every vanishing point for a level scene sits <b>on</b> the horizon. A point floating off it means the drawing mixed two viewpoints.</li>
+            <li>Farther things get <b>smaller</b> and <b>closer to the horizon line</b>.</li>
+            <li>Where the horizon cuts a person tells you where the viewer stood — waist height means standing, knee height means low down.</li>
+          </ul>
+          <button class="learn-btn" id="learn-try-practice" type="button">Try it in Practice →</button>
+          <button class="learn-btn" id="learn-done-horizon" type="button">Mark as tried</button>
+        </div>
+
+        <div class="card learn-card" id="learn-card-where">
+          <h3>Lesson 5 — When and where a colour belongs</h3>
+          <p>Choosing a colour is really choosing a job for it. Ask where it sits, what light it is in, and what feeling it has to carry — then modify it for that job.</p>
+          <ul>
+            <li><b>Foreground</b> needs warmth, saturation, and contrast. That is what pulls the eye forward.</li>
+            <li><b>Background</b> needs cool, light, and dull. That is what lets it fall back.</li>
+            <li><b>Light</b> warms a colour; <b>shadow</b> cools it and dulls it. Do not just add black for a shadow — shift it cooler too.</li>
+          </ul>
+          <div class="learn-example">
+            <b>Example 1 — a landscape:</b> near tree, deep warm green with strong darks; far hills, pale blue-green, almost grey. Same family, different jobs.
+            <div class="learn-swatch-row">
+              <div class="learn-swatch" style="background:#2e5d23"><span>Near tree</span><span>#2E5D23</span></div>
+              <div class="learn-swatch" style="background:#9db8ad"><span>Far hills</span><span>#9DB8AD</span></div>
+            </div>
+          </div>
+          <div class="learn-example">
+            <b>Example 2 — skin in light and shadow:</b> lit skin, warm peach; shadowed skin, cooler and duller — not just the same colour darkened.
+            <div class="learn-swatch-row">
+              <div class="learn-swatch" style="background:#e8b08a"><span>Lit skin</span><span>#E8B08A</span></div>
+              <div class="learn-swatch" style="background:#8a6a72"><span>Shadow skin</span><span>#8A6A72</span></div>
+            </div>
+          </div>
+          <div class="learn-example">
+            <b>Example 3 — a moody night street:</b> one dominant cool blue for the mood, with one small warm accent — a lit window — doing all the talking.
+            <div class="learn-swatch-row">
+              <div class="learn-swatch" style="background:#22354f"><span>Night blue</span><span>#22354F</span></div>
+              <div class="learn-swatch" style="background:#f5c842"><span>Lit window</span><span>#F5C842</span></div>
+            </div>
+          </div>
+          <button class="learn-btn" id="learn-done-where" type="button">Mark as tried</button>
+        </div>
+
+        <div class="card learn-card" id="learn-card-truths">
+          <h3>Lesson 6 — Studio truths</h3>
+          <p>The little things people rarely say out loud, but working painters live by.</p>
+          <ul>
+            <li><b>Never mix complements 50/50.</b> Equal parts of opposite colours cancel each other into dull brown-grey. Use one to dominate (about 80%) and the other as a small accent.</li>
+            <li><b>Test a mixed colour on scrap first.</b> What looks right on the palette can read completely different on the paper or canvas, especially once it dries.</li>
+            <li><b>Dark colours read darker in a large area.</b> A dark swatch that looks fine small will feel much heavier across a whole wall or sky. Mix it a touch lighter than you think.</li>
+            <li><b>One dominant colour, the rest accents.</b> Pick one colour to lead and let the others support it. Two colours fighting for the lead is how a painting gets noisy.</li>
+            <li><b>Squint at your work.</b> Squinting kills the detail and leaves the big value shapes. If the picture still reads when squinted, the values are right.</li>
+          </ul>
+          <button class="learn-btn" id="learn-done-truths" type="button">Mark as tried</button>
+        </div>
       </div>
 
     </div><!-- /main-panel -->
@@ -779,6 +882,7 @@
       <button class="nav-btn" data-tab="mixer"><span class="nav-icon">⚗️</span>Mixer</button>
       <button class="nav-btn" data-tab="grid"><span class="nav-icon">📐</span>Grid/AR</button>
       <button class="nav-btn" data-tab="practice"><span class="nav-icon">✏️</span>Practice</button>
+      <button class="nav-btn" data-tab="learn"><span class="nav-icon">📖</span>Learn</button>
     </nav>
   </div><!-- /hud -->
 </div><!-- /app -->
@@ -864,6 +968,7 @@
 <script src="js/wheel.js"></script>
 <script src="js/mentor.js"></script>
 <script src="js/practice.js"></script>
+<script src="js/learn.js"></script>
 <script src="js/app.js?v=mentor1"></script>
 </body>
 </html>
