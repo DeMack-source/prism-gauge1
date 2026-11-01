@@ -461,7 +461,7 @@
       <div class="status-strip">
         <div class="status-dot" id="status-dot"></div>
         <div id="mode-indicator">STUDIO MODE - OFFLINE</div>
-        <div id="app-version" style="font-family:var(--font-mono);font-size:0.6rem;color:#f5c518;margin-left:8px">PRISM v7</div>
+        <div id="app-version" style="font-family:var(--font-mono);font-size:0.6rem;color:#f5c518;margin-left:8px">PRISM v8</div>
       </div>
       <div class="tab-nav">
         <button class="tab-btn active" data-tab="color">Color Theory</button>
@@ -593,17 +593,32 @@
 
         <div class="card">
           <div class="card-title">Mix Two Colors - like real paint</div>
+          <details class="prac-help" open>
+            <summary>How to use this — tap to hide</summary>
+            <ol style="margin:6px 0 0 18px;font-size:0.85rem;line-height:1.5">
+              <li><strong>Tap Pick A</strong>, choose your first color, then <strong>Pick B</strong> for the second.</li>
+              <li><strong>Slide the bar</strong>: left = more of A, right = more of B. The bar itself shades from A to B so you can see the direction.</li>
+              <li>The big swatch below is your mixed paint. <strong>Set as Base</strong> makes it your working color everywhere else in the app.</li>
+            </ol>
+          </details>
           <div class="mixer-targets">
             <div class="mix-input" id="mix-a-swatch"><label>COLOR A</label></div>
             <div class="mix-plus">+</div>
             <div class="mix-input" id="mix-b-swatch"><label>COLOR B</label></div>
           </div>
+          <div class="prac-row" style="margin-top:8px">
+            <button class="prac-btn" id="mix-pick-a-btn" type="button">Pick A</button>
+            <button class="prac-btn" id="mix-pick-b-btn" type="button">Pick B</button>
+          </div>
           <div class="ratio-slider-wrap">
             <div class="ratio-label">
+              <span>◀ More A</span>
               <span id="ratio-a-label">A 50%</span>
               <span id="ratio-b-label">B 50%</span>
+              <span>More B ▶</span>
             </div>
             <input type="range" id="mix-ratio" min="0" max="100" value="50">
+            <p class="prac-note" id="mix-plain-line" style="margin-top:6px">Half A, half B.</p>
           </div>
           <div class="mix-result">
             <div class="mix-result-swatch" id="mix-result-swatch"></div>
@@ -1022,6 +1037,7 @@
 <script src="js/learn.js"></script>
 <script src="js/app.js?v=mentor1"></script>
 <script src="js/temp-slider.js"></script>
+<script src="js/mixer-help.js"></script>
 <script>
   // Offline: register the service worker immediately (not on window load),
   // so Chrome's install check sees an active worker on the second visit
