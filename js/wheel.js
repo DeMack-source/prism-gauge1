@@ -231,6 +231,8 @@ function initWheel() {
   if (!canvas._wheelListenersAdded) {
     canvas.style.touchAction = 'none';
     canvas.addEventListener('pointerdown', function(e){
+      // A wheel pick supersedes a temperature-slider position.
+      window.__tempKnobSet = false;
       var hsl = rgb2hsl(STATE.baseColor.r, STATE.baseColor.g, STATE.baseColor.b);
       _wheelDrag.light = hsl.l;
       _wheelDrag.dragging = true;
