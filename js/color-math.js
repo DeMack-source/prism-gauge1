@@ -76,6 +76,29 @@ function hsl2rgb(h,s,l){
   };
 }
 
+// ── RGB <-> CIE LAB (D65) ─────────────────────────
+// LAB is how eyes judge "how different are these two colors" —
+// HEX and RGB are machine numbers, LAB is perceptual. Needed for the
+// Color Codes card (F3). Pure math, no library, works offline.
+function rgb2lab(r, g, b) {
+  var R = toLinear(r), G = toLinear(g), B = toLinear(b);
+  // sRGB -> XYZ (D65), then normalize by the D65 white point.
+  var X = (R * 0.4124 + G * 0.3576 + B * 0.1805) / 0.95047;
+  var Y = (R * 0.2126 + G * 0.7152 + B * 0.0722) / 1.00000;
+  var Z = (R * 0.0193 + G * 0.1192 + B * 0.9505) / 1.08883;
+  function f(t) { return t > 0.008856 ? Math.cbrt(t) : (7.787 * t + 16 / 116); }
+  var fx = f(X), fy = f(Y), fz = f(Z);
+  function r1(v) { return Math.round(v * 10) / 10; }
+  return { l: r1(116 * fy - 16), a: r1(500 * (fx - fy)), b: r1(200 * (fy - fz)) };
+}
+function labText(r, g, b) {
+  var lab = rgb2lab(r, g, b);
+  return 'L ' + lab.l + ', a ' + lab.a + ', b ' + lab.b;
+}
+function rgbText(r, g, b) {
+  return r + ', ' + g + ', ' + b;
+}
+
 // ── COLOR TEMPERATURE ─────────────────────────
 function colorTemp(r,g,b){
   // Normalize to 0-1
