@@ -15,6 +15,10 @@ const STATE = {
   mixA: { r: 201, g: 64, b: 64 },
   mixB: { r: 64, g: 128, b: 201 },
   wheelColor: null,
+  // Temperature knob position: null = knob follows the base color's own
+  // temperature; a number 0–1 = knob stays where the finger left it.
+  // Set by the temp slider, cleared when the color changes elsewhere.
+  tempPct: null,
   savedPalettes: []
 };
 
@@ -79,6 +83,7 @@ function onPickerChange(hex) {
   var rgb = hex2rgb(hex);
   if (STATE.pickerTarget === 'base') {
     STATE.baseColor = rgb;
+    STATE.tempPct = null; // color set elsewhere — knob follows the color again
     renderBaseColor();
   } else if (STATE.pickerTarget === 'mixA') {
     STATE.mixA = rgb;
@@ -153,9 +158,12 @@ function renderBaseColor() {
   if (hexEl) hexEl.textContent = hex;
   if (rgbEl) rgbEl.textContent = 'RGB ' + r + ', ' + g + ', ' + b;
 
-  // Temperature gauge
+  // Temperature gauge — the knob holds where the finger left it
+  // (STATE.tempPct) until the color changes somewhere else.
   var temp = colorTemp(r, g, b);
-  var pct = Math.max(2, Math.min(98, temp * 100));
+  var pct = STATE.tempPct !== null && STATE.tempPct !== undefined
+    ? Math.max(2, Math.min(98, STATE.tempPct * 100))
+    : Math.max(2, Math.min(98, temp * 100));
   var indicator = document.getElementById('temp-indicator');
   if (indicator) {
     indicator.style.left = pct + '%';
@@ -173,6 +181,9 @@ function renderBaseColor() {
   renderSchemeGrid();
   renderActivePalette();
   renderTheory();
+
+  // Color Codes card (palette.js) tracks the base color.
+  if (typeof renderColorCodes === 'function') renderColorCodes(STATE.baseColor, 'Base color');
 }
 
 // ── MENTOR SCHEME TIP HELPER ──────────────────────────────────
@@ -249,7 +260,8 @@ function renderActivePalette() {
   var colors = getHarmonyColors(STATE.baseColor, STATE.activeScheme);
   strip.innerHTML = colors.map(function(c) {
     var hex = rgb2hex(c.r, c.g, c.b);
-    return '<div class="palette-chip" style="background:' + hex + '" onclick="copyToClipboard(' + JSON.stringify(hex) + ')"></div>';
+    // Tap copies the hex (as before) and shows the color's codes too.
+    return '<div class="palette-chip" style="background:' + hex + '" onclick="copyToClipboard(' + JSON.stringify(hex) + ');if(typeof showColorCodes===\'function\')showColorCodes(' + c.r + ',' + c.g + ',' + c.b + ')"></div>';
   }).join('');
 }
 
@@ -324,7 +336,14 @@ function renderSaved() {
     var chips = p.colors.map(function(h) {
       return '<div style="flex:1;border-radius:4px;background:' + h + ';cursor:pointer" onclick="copyToClipboard(' + JSON.stringify(h) + ')"></div>';
     }).join('');
-    return '<div style="display:flex;gap:6px;align-items:center"><div style="flex:1"><div style="font-family:var(--font-mono);font-size:0.58rem;color:var(--muted);margin-bottom:4px">' + p.scheme + '</div><div style="display:flex;gap:3px;height:24px">' + chips + '</div></div><button onclick="deletePalette(' + i + ')" style="font-size:0.8rem;color:var(--muted);padding:4px">x</button></div>';
+    // Export / load actions live in palette.js; guarded so the gallery
+    // still renders even if that file hasn't loaded.
+    var acts = '<div style="display:flex;gap:4px;margin-top:6px">' +
+      '<button class="pg-mini-btn" onclick="if(typeof exportPaletteTxt===\'function\')exportPaletteTxt(' + i + ')" type="button">Export .txt</button>' +
+      '<button class="pg-mini-btn" onclick="if(typeof exportPalettePng===\'function\')exportPalettePng(' + i + ')" type="button">Export PNG</button>' +
+      '<button class="pg-mini-btn" onclick="if(typeof loadPaletteToStudio===\'function\')loadPaletteToStudio(' + i + ')" type="button">Open in Studio</button>' +
+      '</div>';
+    return '<div style="margin-bottom:12px"><div style="display:flex;gap:6px;align-items:center"><div style="flex:1"><div style="font-family:var(--font-mono);font-size:0.58rem;color:var(--muted);margin-bottom:4px">' + p.scheme + '</div><div style="display:flex;gap:3px;height:24px">' + chips + '</div></div><button onclick="deletePalette(' + i + ')" style="font-size:0.8rem;color:var(--muted);padding:4px">x</button></div>' + acts + '</div>';
   }).join('');
 }
 
@@ -364,6 +383,7 @@ function wireEvents() {
   document.getElementById('set-base-wheel-btn').addEventListener('click', function() {
     if (STATE.wheelColor) {
       STATE.baseColor = { r: STATE.wheelColor.r, g: STATE.wheelColor.g, b: STATE.wheelColor.b };
+      STATE.tempPct = null; // color set elsewhere — knob follows the color again
       renderBaseColor();
       showToast('Base color updated!');
     }
@@ -373,6 +393,7 @@ function wireEvents() {
   document.getElementById('set-base-mix-btn').addEventListener('click', function() {
     if (STATE._mixResult) {
       STATE.baseColor = { r: STATE._mixResult.r, g: STATE._mixResult.g, b: STATE._mixResult.b };
+      STATE.tempPct = null; // color set elsewhere — knob follows the color again
       renderBaseColor();
       showToast('Base set from mix!');
     }
