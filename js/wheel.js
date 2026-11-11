@@ -159,6 +159,128 @@ function drawHarmonyDots() {
 function renderWheel() {
   drawColorWheel();
   drawHarmonyDots();
+  drawMixMarkers();
+}
+
+// ── MIX MARKERS A / B ─────────────────────────────────────────
+// Two extra markers on the wheel, one per Mixer color. They used to be
+// locked: the harmony dots are derived from the base color, so tapping
+// one did nothing and there was no way to move A or B on the wheel at
+// all. Now A and B are real, independent markers — put a finger on one
+// and drag it anywhere on the wheel, it stays where you leave it.
+// Borrowed pattern (Rennart, MIT): one set of Pointer Events,
+// nearest-marker hit test with a wide finger-sized radius,
+// setPointerCapture, state written on every move, nothing on release.
+var _mixDrag = { active: false, which: null, light: 50, raf: 0 };
+
+function drawMixMarkers() {
+  var canvas = document.getElementById('color-wheel-canvas');
+  if (!canvas) return;
+  if (typeof STATE === 'undefined') return;
+  var ctx = canvas.getContext('2d');
+  [['A', STATE.mixA], ['B', STATE.mixB]].forEach(function(pair) {
+    var label = pair[0], c = pair[1];
+    var pos = colorToWheelXY(c, canvas);
+    var hex = rgb2hex(c.r, c.g, c.b);
+    var brightness = (c.r * 299 + c.g * 587 + c.b * 114) / 1000;
+    var textColor = brightness > 140 ? '#111111' : '#ffffff';
+    // Shadow
+    ctx.beginPath(); ctx.arc(pos.x, pos.y, 15, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.fill();
+    // White ring
+    ctx.beginPath(); ctx.arc(pos.x, pos.y, 13, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.95)'; ctx.fill();
+    // Color fill
+    ctx.beginPath(); ctx.arc(pos.x, pos.y, 11, 0, Math.PI * 2);
+    ctx.fillStyle = hex; ctx.fill();
+    // Letter
+    ctx.fillStyle = textColor;
+    ctx.font = 'bold 12px system-ui, sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(label, pos.x, pos.y + 0.5);
+  });
+}
+
+// Pointer position in canvas units, plus the finger-sized hit radius
+// (24 CSS px, converted to canvas units so it works at any display size).
+function _eventCanvasXY(e) {
+  var canvas = document.getElementById('color-wheel-canvas');
+  var rect = canvas.getBoundingClientRect();
+  return {
+    x: (e.clientX - rect.left) * (canvas.width / rect.width),
+    y: (e.clientY - rect.top) * (canvas.height / rect.height),
+    radius: 24 * (canvas.width / rect.width)
+  };
+}
+
+function tryGrabMixMarker(e) {
+  var canvas = document.getElementById('color-wheel-canvas');
+  if (!canvas || typeof STATE === 'undefined') return false;
+  var p = _eventCanvasXY(e);
+  var best = null, bestD = Infinity;
+  ['A', 'B'].forEach(function(which) {
+    var c = which === 'A' ? STATE.mixA : STATE.mixB;
+    var pos = colorToWheelXY(c, canvas);
+    var d = Math.sqrt(Math.pow(p.x - pos.x, 2) + Math.pow(p.y - pos.y, 2));
+    if (d < bestD) { bestD = d; best = which; }
+  });
+  if (best && bestD <= p.radius) {
+    _mixDrag.active = true;
+    _mixDrag.which = best;
+    var cur = best === 'A' ? STATE.mixA : STATE.mixB;
+    _mixDrag.light = rgb2hsl(cur.r, cur.g, cur.b).l;
+    canvas.setPointerCapture(e.pointerId);
+    canvas.style.cursor = 'grabbing';
+    return true;
+  }
+  return false;
+}
+
+function moveMixMarker(e) {
+  var canvas = document.getElementById('color-wheel-canvas');
+  var rect = canvas.getBoundingClientRect();
+  var cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
+  var dx = e.clientX - cx, dy = e.clientY - cy;
+  var r = Math.min(rect.width, rect.height) / 2;
+  var dist = Math.sqrt(dx * dx + dy * dy);
+  if (dist > r) { dx = dx / dist * r; dy = dy / dist * r; dist = r; }
+  var hue = (Math.atan2(dy, dx) * 180 / Math.PI + 360) % 360;
+  var sat = Math.max(0, Math.min(100, Math.round(dist / (r * 0.92) * 100)));
+  var c = hsl2rgb(hue, sat, _mixDrag.light);
+  // Persist continuously while dragging — nothing resets on release.
+  if (_mixDrag.which === 'A') STATE.mixA = c; else STATE.mixB = c;
+  var sw = document.getElementById(_mixDrag.which === 'A' ? 'mix-a-swatch' : 'mix-b-swatch');
+  if (sw) sw.style.background = rgb2hex(c.r, c.g, c.b);
+  // Refresh the mix and redraw the wheel, at most once per frame.
+  if (!_mixDrag.raf) {
+    _mixDrag.raf = requestAnimationFrame(function() {
+      _mixDrag.raf = 0;
+      if (typeof updateMix === 'function') updateMix();
+      _shadeMixSlider();
+      renderWheel();
+    });
+  }
+}
+
+// Keep the A-to-B slider's shading in step with the markers.
+function _shadeMixSlider() {
+  var slider = document.getElementById('mix-ratio');
+  if (!slider) return;
+  var a = document.getElementById('mix-a-swatch'), b = document.getElementById('mix-b-swatch');
+  var hexA = a ? a.style.background : '', hexB = b ? b.style.background : '';
+  if (hexA && hexB) slider.style.background = 'linear-gradient(90deg,' + hexA + ',' + hexB + ')';
+}
+
+function endMixMarkerDrag() {
+  if (!_mixDrag.active) return false;
+  _mixDrag.active = false;
+  var canvas = document.getElementById('color-wheel-canvas');
+  if (canvas) canvas.style.cursor = '';
+  // Final mix update on release. Nothing resets — the marker stays put.
+  if (typeof updateMix === 'function') updateMix();
+  _shadeMixSlider();
+  _mixDrag.which = null;
+  return true;
 }
 
 // ── PICK COLOR FROM WHEEL (geometric, so the dot follows your finger) ──
@@ -231,8 +353,14 @@ function initWheel() {
   if (!canvas._wheelListenersAdded) {
     canvas.style.touchAction = 'none';
     canvas.addEventListener('pointerdown', function(e){
+      // Mix markers A/B get first grab: if the finger lands on one, it
+      // drags that mix color instead of picking a new base color.
+      if (tryGrabMixMarker(e)) {
+        e.preventDefault();
+        return;
+      }
       // A wheel pick supersedes a temperature-slider position.
-      window.__tempKnobSet = false;
+      if (typeof STATE !== 'undefined') STATE.tempPct = null;
       var hsl = rgb2hsl(STATE.baseColor.r, STATE.baseColor.g, STATE.baseColor.b);
       _wheelDrag.light = hsl.l;
       _wheelDrag.dragging = true;
@@ -241,10 +369,12 @@ function initWheel() {
       e.preventDefault();
     });
     canvas.addEventListener('pointermove', function(e){
+      if (_mixDrag.active) { moveMixMarker(e); return; }
       if (!_wheelDrag.dragging) return;
       pickWheelColor(e);
     });
     function wheelEnd(){
+      if (endMixMarkerDrag()) return;
       if (!_wheelDrag.dragging) return;
       _wheelDrag.dragging = false;
       // Sync the Color tab, scheme grid, temperature and mentor on release.
