@@ -9,8 +9,9 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" href="icons/icon-192.png">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+  <!-- No web fonts, no CDN: every font is a system font (see tokens.css),
+       so the app looks the same offline as it does on Wi-Fi. A web-font
+       link is exactly what broke offline use before. -->
   <!-- No three.js: it was loaded from a CDN but never used anywhere in the
        app, and a CDN script is exactly what would break offline use. -->
   <link rel="stylesheet" href="css/tokens.css">
@@ -18,6 +19,7 @@
   <link rel="stylesheet" href="css/components.css?v=tempvisible2">
   <link rel="stylesheet" href="css/practice.css">
   <link rel="stylesheet" href="css/learn.css">
+  <link rel="stylesheet" href="css/palette.css">
 
 <style>
 .temp-bar {
@@ -461,7 +463,7 @@
       <div class="status-strip">
         <div class="status-dot" id="status-dot"></div>
         <div id="mode-indicator">STUDIO MODE - OFFLINE</div>
-        <div id="app-version" style="font-family:var(--font-mono);font-size:0.6rem;color:#f5c518;margin-left:8px">PRISM v8</div>
+        <div id="app-version" style="font-family:var(--font-mono);font-size:0.6rem;color:#f5c518;margin-left:8px">PRISM v9</div>
       </div>
       <div class="tab-nav">
         <button class="tab-btn active" data-tab="color">Color Theory</button>
@@ -531,6 +533,72 @@
           <div id="saved-list"></div>
         </div>
 
+        <!-- ── PALETTE STUDIO (F2) ─────────────────────────── -->
+        <div class="card" id="palette-studio-card">
+          <div class="card-title">Palette Studio — up to six colors</div>
+          <p class="prac-note">Tap a color to see its codes. Change one with the picker. Lock the ones you want to keep, then pick a wheel rule to rebuild the rest from the first color.</p>
+          <div class="pg-studio-slots" id="pg-studio-slots"></div>
+          <div class="prac-row" style="margin-top:10px">
+            <label class="prac-note" style="display:flex;align-items:center;gap:8px">Colors
+              <select class="prac-select" id="pg-studio-count" aria-label="Number of colors">
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5" selected>5</option>
+                <option value="6">6</option>
+              </select>
+            </label>
+          </div>
+          <div class="prac-row" style="margin-top:8px" id="pg-harmony-btns">
+            <button class="prac-btn pg-harmony-btn" data-scheme="complementary" type="button">Complementary</button>
+            <button class="prac-btn pg-harmony-btn" data-scheme="analogous" type="button">Analogous</button>
+            <button class="prac-btn pg-harmony-btn" data-scheme="triadic" type="button">Triadic</button>
+            <button class="prac-btn pg-harmony-btn" data-scheme="splitComp" type="button">Split-Comp</button>
+            <button class="prac-btn pg-harmony-btn" data-scheme="tetradic" type="button">Tetradic</button>
+            <button class="prac-btn pg-harmony-btn" data-scheme="monochromatic" type="button">Mono</button>
+          </div>
+          <div class="prac-row" style="margin-top:10px">
+            <button class="prac-btn" id="pg-studio-apply" type="button">Use as active palette</button>
+            <button class="prac-btn" id="pg-studio-save" type="button">Save to gallery</button>
+          </div>
+        </div>
+
+        <!-- ── FROM A PHOTO (F1) ───────────────────────────── -->
+        <div class="card" id="pg-extract-card">
+          <div class="card-title">Pull a palette from a photo</div>
+          <p class="prac-note">Pick a photo from your phone. The colors come out of it right here on your device — nothing is uploaded anywhere.</p>
+          <div class="prac-row">
+            <button class="prac-btn" id="pg-photo-btn" type="button">📷 Choose a photo</button>
+            <input type="file" id="pg-photo-input" class="prac-file" accept="image/*" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden">
+            <label class="prac-note" style="display:flex;align-items:center;gap:8px">Colors
+              <select class="prac-select" id="pg-extract-count" aria-label="Number of colors to pull">
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6" selected>6</option>
+              </select>
+            </label>
+          </div>
+          <div class="pg-extract-preview" id="pg-extract-preview" style="display:none">
+            <img id="pg-extract-img" alt="Your photo">
+            <div class="pg-extract-swatches" id="pg-extract-swatches"></div>
+            <p class="prac-note">Tap a color to make it your base color. Or load the whole set into the Palette Studio.</p>
+            <div class="prac-row"><button class="prac-btn" id="pg-extract-use" type="button">Use these in the Studio</button></div>
+          </div>
+        </div>
+
+        <!-- ── COLOR CODES (F3) ────────────────────────────── -->
+        <div class="card" id="pg-codes-card">
+          <div class="card-title">Color codes — tap a value to copy</div>
+          <div class="pg-codes-row">
+            <div class="pg-codes-swatch" id="pg-codes-swatch"></div>
+            <div class="pg-codes-name" id="pg-codes-name">Base color</div>
+          </div>
+          <button class="pg-code-line" id="pg-code-hex" type="button"><span>HEX</span><span id="pg-code-hex-val">#C94040</span></button>
+          <button class="pg-code-line" id="pg-code-rgb" type="button"><span>RGB</span><span id="pg-code-rgb-val">201, 64, 64</span></button>
+          <button class="pg-code-line" id="pg-code-lab" type="button"><span>LAB</span><span id="pg-code-lab-val">L 42.1, a 52.3, b 31.8</span></button>
+          <p class="prac-note">Tap any color in the app — a palette chip, a photo color, a studio slot — and its codes show up here.</p>
+        </div>
+
       </div>
 
       <!-- ── WHEEL TAB ─────────────────────────────────────── -->
@@ -540,6 +608,7 @@
         <div class="card" style="align-items:center">
           <div class="card-title">Interactive Color Wheel - drag to pick</div>
           <canvas id="color-wheel-canvas" width="260" height="260"></canvas>
+          <p class="prac-note" style="margin-top:10px">Drag anywhere to pick your base color. The <strong>A</strong> and <strong>B</strong> markers are your two mix colors — put a finger on one and drag it anywhere on the wheel, it stays where you leave it.</p>
           <div class="color-info-row" style="margin-top:14px;width:100%">
             <div class="color-swatch-big" id="wheel-swatch"></div>
             <div class="color-values">
@@ -1038,6 +1107,8 @@
 <script src="js/app.js?v=mentor1"></script>
 <script src="js/temp-slider.js"></script>
 <script src="js/mixer-help.js"></script>
+<script src="js/extract.js"></script>
+<script src="js/palette.js"></script>
 <script>
   // Offline: register the service worker immediately (not on window load),
   // so Chrome's install check sees an active worker on the second visit
