@@ -1,0 +1,155 @@
+/* ── PRISM-GAUGE — palette.css ─────────────────────────────
+   Styles for the v9 additions: Palette Studio (F2), photo
+   extraction (F1), Color Codes (F3), gallery export buttons (F4).
+   Same tokens as the rest of the app; system fonts only. */
+
+/* Palette Studio */
+.pg-studio-slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+.pg-slot {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pg-slot-swatch {
+  height: 56px;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: flex-end;
+  padding: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.pg-slot-swatch:active { transform: scale(0.97); }
+.pg-slot-change {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  cursor: pointer;
+}
+.pg-slot-change input[type="color"] {
+  width: 34px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--border-mid);
+  border-radius: 6px;
+  background: var(--surface2);
+  cursor: pointer;
+}
+.pg-slot-lock {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 4px;
+  cursor: pointer;
+}
+.pg-slot-lock.locked {
+  color: var(--gold);
+  border-color: rgba(245, 200, 66, 0.4);
+}
+.pg-harmony-btn.active {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: rgba(0, 242, 255, 0.08);
+}
+
+/* Photo extraction */
+.pg-extract-preview img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  margin: 10px 0;
+  display: block;
+}
+.pg-extract-swatches {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.pg-extract-swatch {
+  flex: 1;
+  height: 44px;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.pg-extract-swatch:active { transform: scale(0.96); }
+
+/* Color codes */
+.pg-codes-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.pg-codes-swatch {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  background: #c94040;
+  flex-shrink: 0;
+}
+.pg-codes-name {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+.pg-code-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text);
+  text-align: left;
+}
+.pg-code-line:active { background: var(--surface3); }
+.pg-code-line span:first-child {
+  color: var(--muted);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+}
+.pg-code-line span:last-child { font-weight: 700; }
+
+/* Gallery mini buttons */
+.pg-mini-btn {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--cyan);
+  background: rgba(0, 242, 255, 0.06);
+  border: 1px solid rgba(0, 242, 255, 0.3);
+  border-radius: 6px;
+  padding: 5px 8px;
+  cursor: pointer;
+}
+.pg-mini-btn:active { background: rgba(0, 242, 255, 0.14); }
