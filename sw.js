@@ -1,9 +1,10 @@
 /* Prism Gauge 1 — offline service worker.
    First visit needs a connection: the worker then caches the whole app
    shell, and later visits work with no Wi-Fi or data at all.
-   Web fonts are NOT cached on purpose — offline the app falls back to
-   system fonts, so nothing blocks. User photos are never uploaded. */
-var CACHE = 'prism-gauge1-v8';
+   There are no web fonts and no CDN files anywhere in the app — every
+   font is a system font and every script and style is a local file —
+   so nothing can block offline use. User photos are never uploaded. */
+var CACHE = 'prism-gauge1-v9';
 var ASSETS = [
   './',
   './index.html',
@@ -15,15 +16,16 @@ var ASSETS = [
   './css/components.css',
   './css/practice.css',
   './css/learn.css',
+  './css/palette.css',
   './js/color-math.js',
-  './js/wheel.js',
   './js/wheel.js',
   './js/mentor.js',
   './js/practice.js',
   './js/learn.js',
   './js/temp-slider.js',
   './js/mixer-help.js',
-  './js/wheel-drag.js',
+  './js/extract.js',
+  './js/palette.js',
   './js/app.js'
 ];
 self.addEventListener('install', function(e){
